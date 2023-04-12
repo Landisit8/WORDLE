@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-// Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, iteazioni con client
+// Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
 public class ServerMain {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);   //  Scanner
@@ -28,6 +28,8 @@ public class ServerMain {
                 stringa = scanner.next();
                 System.out.println("Inserisci la password");
                 input = scanner.next();
+                login = new Login(stringa, input);
+                login.controllo(stringa, input);
                 inputOk = true;
                 break;
         }
