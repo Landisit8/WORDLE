@@ -30,4 +30,8 @@ public class Register {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    /*
+    METODO: controllo nella memory se username è già presente oppure se la password è vuota.
+     */
 }
