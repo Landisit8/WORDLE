@@ -7,6 +7,7 @@ import java.nio.channels.*;
 // Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
 public class ServerMain {
     public static int DEFAULT_PORT = 5000;
+
     public static void main(String[] args) {
         int port;
         port = DEFAULT_PORT;
@@ -46,7 +47,7 @@ public class ServerMain {
                 iterator.remove();
                 //  rimuove la chiave dal Select Set, ma non dal Registered Set
                 try {
-                    if (key.isAcceptable()) {    //  è stata accettata la connessione
+                    if (key.isAcceptable() && key.isValid()) {    //  è stata accettata la connessione
                         ServerSocketChannel server = (ServerSocketChannel) key.channel();
                         //  l'accept mi resitutisce il canale su cui comunico con quel client
                         SocketChannel client = server.accept();
@@ -60,7 +61,9 @@ public class ServerMain {
                         output.flip();   //  modalità lettura
                         //  Per ricordare il punto in cui ero rimasto nella sequenza. L'attachment ha lo stato del canale
                         clientKey.attach(output);
-                    } else if (key.isWritable()) {    //  Quando la scrittura è disponibile, vado a scrivere
+                        //client.register(selector, SelectionKey.OP_READ);
+                    } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
+                        System.out.println("Scrittura");
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer output = (ByteBuffer) key.attachment();
                         if (!output.hasRemaining()) {
@@ -71,6 +74,19 @@ public class ServerMain {
                             output.flip();   //  modalità scrittura
                         }
                         client.write(output);
+                        key.interestOps(SelectionKey.OP_READ);
+                    } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
+                        System.out.println("Lettura");
+                        SocketChannel client = (SocketChannel) key.channel();
+                        ByteBuffer input = ByteBuffer.allocate(4);
+                        IntBuffer view = input.asIntBuffer();
+                        for (int expected = 0; expected <= 10; expected++) {
+                            client.read(input);
+                            int actual = view.get();
+                            input.clear();
+                            view.rewind();
+                            System.out.println(actual);
+                        }
                     }
                 } catch (IOException e) {
                     key.cancel();
@@ -82,7 +98,6 @@ public class ServerMain {
                 }
             }
         }
-    }
 
 
 
@@ -126,4 +141,5 @@ public class ServerMain {
         }
         }while(inputOk!=true);
         */
+    }
 }
