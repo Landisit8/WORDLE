@@ -54,39 +54,37 @@ public class ServerMain {
                         System.out.println("Connessione accettata da " + client);
                         client.configureBlocking(false);
                         //   registro il socket che mi collega a quel settore con l'operazioni di write
-                        SelectionKey clientKey = client.register(selector, SelectionKey.OP_WRITE);
-                        //  creo un buffer per il client
-                        ByteBuffer output = ByteBuffer.allocate(4);
-                        output.putInt(0);    //  ci scrivo
-                        output.flip();   //  modalità lettura
-                        //  Per ricordare il punto in cui ero rimasto nella sequenza. L'attachment ha lo stato del canale
-                        clientKey.attach(output);
-                        //client.register(selector, SelectionKey.OP_READ);
+                        client.register(selector, SelectionKey.OP_READ);
                     } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
-                        System.out.println("Scrittura");
+                        System.out.println("Sto scrivendo al client");
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer output = (ByteBuffer) key.attachment();
-                        if (!output.hasRemaining()) {
-                            output.rewind(); // faccio la clear resettando il buffer
-                            int value = output.getInt();
-                            output.clear();
-                            output.putInt(value + 1);   //  ci metto n+1
-                            output.flip();   //  modalità scrittura
-                        }
-                        client.write(output);
+                        int value = output.getInt();
+                        output.clear();
+                        output.putInt(value + 1);   //  ci metto n+1
+                        output.flip();   //  modalità scrittura
+                        while (output.hasRemaining())   client.write(output);
+                        //  modalità lettura
                         key.interestOps(SelectionKey.OP_READ);
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
-                        System.out.println("Lettura");
+                        System.out.println("Sto leggendo dal client");
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer input = ByteBuffer.allocate(4);
-                        IntBuffer view = input.asIntBuffer();
-                        for (int expected = 0; expected <= 10; expected++) {
-                            client.read(input);
-                            int actual = view.get();
-                            input.clear();
-                            view.rewind();
-                            System.out.println(actual);
+                        if (input.toString().equals("")){
+                            key.cancel();
+                            System.err.println("Connessione chiusa");
+                            continue;
                         }
+                        IntBuffer view = input.asIntBuffer();
+                        client.read(input);
+                        int actual = view.get();
+                        input.clear();
+                        view.rewind();
+                        System.out.println(actual);
+                        //  Metto nell'attachment il buffer che ho letto
+                        key.attach(input);
+                        //  cambio l'operazione da read a write
+                        key.interestOps(SelectionKey.OP_WRITE);
                     }
                 } catch (IOException e) {
                     key.cancel();
