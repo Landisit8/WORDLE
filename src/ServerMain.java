@@ -58,29 +58,33 @@ public class ServerMain {
                     } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
                         System.out.println("Sto scrivendo al client");
                         SocketChannel client = (SocketChannel) key.channel();
-                        ByteBuffer output = (ByteBuffer) key.attachment();
-                        int value = output.getInt();
-                        output.clear();
-                        output.putInt(value + 1);   //  ci metto n+1
+                        String message = "Client ma che cazzo vuoi?";
+                        ByteBuffer output = ByteBuffer.allocate(4 + message.getBytes().length);
+                        output.putInt(message.getBytes().length);   //  ci metto n+1
+                        output.put(message.getBytes());
                         output.flip();   //  modalità scrittura
                         while (output.hasRemaining())   client.write(output);
-                        //  modalità lettura
+                        //  cambio l'operazione da write a read
                         key.interestOps(SelectionKey.OP_READ);
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
                         System.out.println("Sto leggendo dal client");
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer input = ByteBuffer.allocate(4);
-                        if (input.toString().equals("")){
-                            key.cancel();
-                            System.err.println("Connessione chiusa");
-                            continue;
-                        }
                         IntBuffer view = input.asIntBuffer();
                         client.read(input);
                         int actual = view.get();
                         input.clear();
                         view.rewind();
                         System.out.println(actual);
+                        input = ByteBuffer.allocate(actual);
+                        while(input.hasRemaining())    client.read(input);
+                        String stringa = new String(input.array());
+                        System.out.println(stringa);
+                        if (stringa.equals("")){
+                            key.cancel();
+                            System.err.println("Connessione chiusa");
+                            continue;
+                        }
                         //  Metto nell'attachment il buffer che ho letto
                         key.attach(input);
                         //  cambio l'operazione da read a write
