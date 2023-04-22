@@ -1,7 +1,10 @@
 import java.io.IOException;
 import java.net.*;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.nio.*;
 import java.nio.channels.*;
 
 // Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
@@ -11,9 +14,28 @@ public class ServerMain {
     public static void main(String[] args) {
         int port;
         port = DEFAULT_PORT;
+
+        //  RMI
+        try {
+            //  creazione di un'istanza dell'oggetto RegisterServiceImpl
+            RegisterServiceImpl registerService = new RegisterServiceImpl();
+            //  esportazione dell'oggetto
+            RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(registerService, 0);
+            //  creazione del registry sulla porta 1717
+            LocateRegistry.createRegistry(1717);
+            Registry r = LocateRegistry.getRegistry(1717);
+            //  pubblicazione dello stub nel registry
+            r.rebind("REGISTER-SERVICE", stub);
+            System.out.println("Server ready");
+        } catch (RemoteException e) {
+            System.out.println("Tipologia errore: " + e.toString());
+        }
+
         //  Creo il ServerSocketChannel e il selettore
         ServerSocketChannel serverChannel;
         Selector selector;
+
+        String message = "Client ma che cazzo vuoi?";
         //  apro il serverSocketChannel
         try {
             serverChannel = ServerSocketChannel.open();
@@ -56,37 +78,19 @@ public class ServerMain {
                         //   registro il socket che mi collega a quel settore con l'operazioni di write
                         client.register(selector, SelectionKey.OP_READ);
                     } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
-                        System.out.println("Sto scrivendo al client");
                         SocketChannel client = (SocketChannel) key.channel();
-                        String message = "Client ma che cazzo vuoi?";
-                        ByteBuffer output = ByteBuffer.allocate(4 + message.getBytes().length);
-                        output.putInt(message.getBytes().length);   //  ci metto n+1
-                        output.put(message.getBytes());
-                        output.flip();   //  modalità scrittura
-                        while (output.hasRemaining())   client.write(output);
+                        Utils.write(message, client);
                         //  cambio l'operazione da write a read
                         key.interestOps(SelectionKey.OP_READ);
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
-                        System.out.println("Sto leggendo dal client");
                         SocketChannel client = (SocketChannel) key.channel();
-                        ByteBuffer input = ByteBuffer.allocate(4);
-                        IntBuffer view = input.asIntBuffer();
-                        client.read(input);
-                        int actual = view.get();
-                        input.clear();
-                        view.rewind();
-                        System.out.println(actual);
-                        input = ByteBuffer.allocate(actual);
-                        while(input.hasRemaining())    client.read(input);
-                        String stringa = new String(input.array());
-                        System.out.println(stringa);
+                        String stringa = Utils.read(client);
                         if (stringa.equals("")){
                             key.cancel();
                             System.err.println("Connessione chiusa");
                             continue;
                         }
-                        //  Metto nell'attachment il buffer che ho letto
-                        key.attach(input);
+                        System.out.println(stringa);
                         //  cambio l'operazione da read a write
                         key.interestOps(SelectionKey.OP_WRITE);
                     }
@@ -100,48 +104,5 @@ public class ServerMain {
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-       /* Scanner scanner = new Scanner(System.in);   //  Scanner
-        Register register;  //  Registrazione
-        Login login;    //  Login
-        boolean inputOk = false;    //  Controllo input
-        String input;
-        String stringa;
-
-        int Inserimento;
-
-        do{
-            Inserimento= scanner.nextInt();
-        switch (Inserimento){
-            case 0:
-                System.out.println("Registrazione, Inserisci l'username");
-                stringa = scanner.next();
-                System.out.println("Inserisci la password");
-                input = scanner.next();
-                register = new Register(stringa, input);
-                break;
-            case 1:
-                System.out.println("Login");
-                System.out.println("Inserisci l'username");
-                stringa = scanner.next();
-                System.out.println("Inserisci la password");
-                input = scanner.next();
-                login = new Login(stringa, input);
-                login.controllo(stringa, input);
-                inputOk = true;
-                break;
-        }
-        }while(inputOk!=true);
-        */
     }
 }
