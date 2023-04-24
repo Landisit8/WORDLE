@@ -5,12 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="945c051a-8476-4f2c-8b5c-edeffdc20f02" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/RegisterInterface.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/RegisterServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Utils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Password.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Statistics.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Register.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ServerMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Login.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Memory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memory.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,9 +46,14 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/Federico Landini/Documents/GitHub/WORDLECLIENT"
+    "last_opened_file_path": "C:/Users/Federico Landini/Documents/GitHub/WORDLE"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
