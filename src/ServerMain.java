@@ -1,11 +1,14 @@
 import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
+
 import java.nio.channels.*;
+import java.util.Iterator;
+import java.util.Set;
 
 // Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
 public class ServerMain {
@@ -28,7 +31,7 @@ public class ServerMain {
             r.rebind("REGISTER-SERVICE", stub);
             System.out.println("Server ready");
         } catch (RemoteException e) {
-            System.out.println("Tipologia errore: " + e.toString());
+            System.out.println("Tipologia errore: " + e);
         }
 
         //  Creo il ServerSocketChannel e il selettore
