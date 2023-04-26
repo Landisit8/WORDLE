@@ -12,12 +12,8 @@ import java.util.Set;
 
 // Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
 public class ServerMain {
-    public static int DEFAULT_PORT = 5000;
-
     public static void main(String[] args) {
-        int port;
-        port = DEFAULT_PORT;
-
+        Configuration configuration = new Configuration();
         //  RMI
         try {
             //  creazione di un'istanza dell'oggetto RegisterServiceImpl
@@ -25,8 +21,8 @@ public class ServerMain {
             //  esportazione dell'oggetto
             RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(registerService, 0);
             //  creazione del registry sulla porta 1717
-            LocateRegistry.createRegistry(1717);
-            Registry r = LocateRegistry.getRegistry(1717);
+            LocateRegistry.createRegistry(configuration.getRegistryPort());
+            Registry r = LocateRegistry.getRegistry(configuration.getRegistryPort());
             //  pubblicazione dello stub nel registry
             r.rebind("REGISTER-SERVICE", stub);
             System.out.println("Server ready");
@@ -44,7 +40,7 @@ public class ServerMain {
             serverChannel = ServerSocketChannel.open();
             ServerSocket ss = serverChannel.socket();
             //  mi collego alla porta
-            InetSocketAddress address = new InetSocketAddress(port);
+            InetSocketAddress address = new InetSocketAddress(configuration.getDefaultPort());
             //  lo collego all'indirizzo, e ho attivato un servizio su quell'indirizzo e su quella porta
             ss.bind(address);
             serverChannel.configureBlocking(false);
