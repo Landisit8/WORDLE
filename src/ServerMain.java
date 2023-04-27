@@ -1,19 +1,29 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-
-import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Set;
 
 // Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
 public class ServerMain {
     public static void main(String[] args) {
+        //  Parsing della configurazione
         Configuration configuration = new Configuration();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String configurationGson = gson.toJson(configuration);
+        //System.out.println("Serializzazione" + configurationGson);
+        configuration = gson.fromJson(configurationGson, Configuration.class);
+        // System.out.println("Deserializzazione" + configuration);
         //  RMI
         try {
             //  creazione di un'istanza dell'oggetto RegisterServiceImpl
@@ -34,7 +44,6 @@ public class ServerMain {
         ServerSocketChannel serverChannel;
         Selector selector;
 
-        String message = "Client ma che cazzo vuoi?";
         //  apro il serverSocketChannel
         try {
             serverChannel = ServerSocketChannel.open();
@@ -78,6 +87,8 @@ public class ServerMain {
                         client.register(selector, SelectionKey.OP_READ);
                     } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
                         SocketChannel client = (SocketChannel) key.channel();
+                        String message = "Client ma che cazzo vuoi?";
+                        //  qui scrivo sul canale le risposte al client con uno switch
                         Utils.write(message, client);
                         //  cambio l'operazione da write a read
                         key.interestOps(SelectionKey.OP_READ);
@@ -88,6 +99,8 @@ public class ServerMain {
                             key.cancel();
                             System.err.println("Connessione chiusa");
                             continue;
+                        } else {
+                            switch ()
                         }
                         System.out.println(stringa);
                         //  cambio l'operazione da read a write

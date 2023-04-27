@@ -21,4 +21,12 @@ public class Configuration {
     public int getRegistryPort() {
         return RegistryPort;
     }
+
+    public String toString() {
+        return "Configuration{" +
+                "timeoutWord=" + timeoutWord +
+                ", defaultPort=" + defaultPort +
+                ", RegistryPort=" + RegistryPort +
+                '}';
+    }
 }
