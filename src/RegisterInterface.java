@@ -6,5 +6,5 @@ import java.rmi.RemoteException;
     lo username dell'utente deve essere univoco.
 */
 public interface RegisterInterface extends Remote{
-    public int register(String username, String password)   throws RemoteException;
+    boolean register(String username, String password)   throws RemoteException;
 }

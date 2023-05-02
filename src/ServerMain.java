@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -24,6 +25,9 @@ public class ServerMain {
         //System.out.println("Serializzazione" + configurationGson);
         configuration = gson.fromJson(configurationGson, Configuration.class);
         // System.out.println("Deserializzazione" + configuration);
+        String[] options;
+        Memory memory = new Memory();
+        String messageForClient = "";
         //  RMI
         try {
             //  creazione di un'istanza dell'oggetto RegisterServiceImpl
@@ -87,22 +91,47 @@ public class ServerMain {
                         client.register(selector, SelectionKey.OP_READ);
                     } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
                         SocketChannel client = (SocketChannel) key.channel();
-                        String message = "Client ma che cazzo vuoi?";
-                        //  qui scrivo sul canale le risposte al client con uno switch
-                        Utils.write(message, client);
+                        Utils.write(messageForClient, client);
                         //  cambio l'operazione da write a read
                         key.interestOps(SelectionKey.OP_READ);
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
                         SocketChannel client = (SocketChannel) key.channel();
                         String stringa = Utils.read(client);
-                        if (stringa.equals("")){
+                        options = stringa.split(" ");
+                        if (options[0].isEmpty()){
                             key.cancel();
                             System.err.println("Connessione chiusa");
                             continue;
                         } else {
-                            switch ()
+                            switch (options[0]) {
+                                case "login":
+                                    //  login
+                                    if (memory.login(options[1], options[2])){
+                                        messageForClient = "Login effettuato con successo";
+                                    } else {
+                                        messageForClient = "Login fallito";
+                                    }
+                                    break;
+                                case "2":
+                                    //  logout
+                                    break;
+                                case "3":
+                                    //  PlayWordle
+                                    break;
+                                case "4":
+                                    //  sendWord
+                                    break;
+                                case "5":
+                                    //  sendMeStatistics
+                                    break;
+                                case "6":
+                                    //  share
+                                    break;
+                                case "7":
+                                    //  showMeSharing
+                                    break;
+                            }
                         }
-                        System.out.println(stringa);
                         //  cambio l'operazione da read a write
                         key.interestOps(SelectionKey.OP_WRITE);
                     }

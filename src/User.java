@@ -1,10 +1,18 @@
 public class User {
-    private String username;
-    private Password password;
+    private final String username;
+    private final Password password;
     private Statistics statistics;
 
     public User(String username, String password) {
         this.username = username;
         this.password = new Password(password);
+    }
+
+    public String getPassword() {
+        return password.getPassword();
+    }
+
+    public String getUsername() {
+        return username;
     }
 }
