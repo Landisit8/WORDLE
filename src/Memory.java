@@ -44,9 +44,8 @@ public class Memory {
         return this.users.containsKey(username);
     }
 
-    //  Meotodo di login
+    //  Meotodo di login,
     public boolean login(String username, String password) {
-        stampa();
         if (this.isRegistered(username) && this.users.get(username).getPassword().equals(password) && !this.isOnline(username)) {
             this.insertOnlineUser(username, password);
             return true;
@@ -57,6 +56,7 @@ public class Memory {
     public boolean logout(String username) {
         System.out.println("Logout: " + username);
         if (this.isOnline(username)) {
+            System.out.println("Utente online: " + username + " è stato disconnesso");
             this.removeOnlineUser(username);
             return true;
         }

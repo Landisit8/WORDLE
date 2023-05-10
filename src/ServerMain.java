@@ -1,6 +1,5 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -31,7 +30,7 @@ public class ServerMain {
         //  RMI
         try {
             //  creazione di un'istanza dell'oggetto RegisterServiceImpl
-            RegisterServiceImpl registerService = new RegisterServiceImpl();
+            RegisterServiceImpl registerService = new RegisterServiceImpl(memory);
             //  esportazione dell'oggetto
             RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(registerService, 0);
             //  creazione del registry sulla porta 1717
@@ -112,8 +111,13 @@ public class ServerMain {
                                         messageForClient = "Login fallito";
                                     }
                                     break;
-                                case "2":
-                                    //  logout
+                                case "exit":
+                                    //  Exit
+                                    if (memory.logout(options[1])){
+                                        messageForClient = "Uscita dal gioco effettuato con successo";
+                                    } else {
+                                        messageForClient = "";
+                                    }
                                     break;
                                 case "3":
                                     //  PlayWordle
@@ -129,6 +133,9 @@ public class ServerMain {
                                     break;
                                 case "7":
                                     //  showMeSharing
+                                    break;
+                                case "8":
+                                    //  logout
                                     break;
                             }
                         }

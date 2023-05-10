@@ -1,6 +1,9 @@
 import java.rmi.RemoteException;
 public class RegisterServiceImpl implements RegisterInterface{
-    Memory memory = new Memory();
+    private final Memory memory;
+    public RegisterServiceImpl(Memory memory) throws RemoteException{
+        this.memory = memory;
+    }
 
     public boolean register(String username, String password) throws RemoteException{
         if ( username.isEmpty() || password.isEmpty() ) {
