@@ -116,6 +116,7 @@ public class ServerMain {
                                     if (memory.logout(options[1])){
                                         messageForClient = "Uscita dal gioco effettuato con successo";
                                     } else {
+                                        //  Nel caso che logout restituisce false, mando la stringa vuota
                                         messageForClient = "";
                                     }
                                     break;

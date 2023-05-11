@@ -9,7 +9,7 @@ public class User {
     }
 
     public String getPassword() {
-        return password.getPassword();
+        return Password.decode(password.getPassword());
     }
 
     public String getUsername() {
