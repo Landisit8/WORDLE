@@ -1,5 +1,8 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -13,14 +16,34 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 // Classe serverMain -> Parsing, Iterazione con i client, creazione della nuova parola, gestione delle statistiche.
 public class ServerMain {
     public static void main(String[] args) {
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10,
+                10, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         //  Parsing della configurazione
+        File file = new File(".\\src\\config.json");    // su mac non funziona, guardare i file separator
         Configuration configuration = new Configuration();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String configurationGson = gson.toJson(configuration);
+        try {
+            if (file.createNewFile()) {
+                System.out.println("File creato");
+            } else {
+                System.out.println("File già esistente");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try(FileWriter fileWriter = new FileWriter(file)){
+            fileWriter.write(configurationGson);
+        }catch (IOException e){
+            System.out.println("Errore di scrittura");
+        }
         //System.out.println("Serializzazione" + configurationGson);
         configuration = gson.fromJson(configurationGson, Configuration.class);
         // System.out.println("Deserializzazione" + configuration);
@@ -96,6 +119,7 @@ public class ServerMain {
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
                         SocketChannel client = (SocketChannel) key.channel();
                         String stringa = Utils.read(client);
+                        threadPoolExecutor.execute(new Worker(stringa, memory, client));
                         options = stringa.split(" ");
                         if (options[0].isEmpty()){
                             key.cancel();
@@ -152,6 +176,19 @@ public class ServerMain {
                     }
                 }
             }
+        }
+        // chiudo il thread pool
+        threadPoolExecutor.shutdown();
+        try{
+            if (threadPoolExecutor.awaitTermination(1, TimeUnit.MINUTES)){
+                System.out.println("Tutti i thread sono terminati");
+            } else {
+                System.out.println("Timeout scaduto");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            threadPoolExecutor.shutdownNow();
         }
     }
 }
