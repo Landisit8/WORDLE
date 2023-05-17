@@ -58,7 +58,7 @@ public class Worker implements Runnable{
                         }
                     } else {
                         try {
-                            Utils.write("", client);
+                            Utils.write("Username errato", client);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }

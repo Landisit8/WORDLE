@@ -116,12 +116,9 @@ public class ServerMain {
                         if (stringa.isEmpty()){
                             key.cancel();
                             System.err.println("Connessione chiusa");
-                            continue;
                         } else {
                             threadPoolExecutor.execute(new Worker(stringa, memory, client));
                         }
-                        //  cambio l'operazione da read a write
-                        key.interestOps(SelectionKey.OP_WRITE);
                     }
                 } catch (IOException e) {
                     key.cancel();

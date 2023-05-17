@@ -47,6 +47,7 @@ public class Memory {
     //  Metodo di login,
     public boolean login(String username, String password) {
         if (this.isRegistered(username) && this.users.get(username).getPassword().equals(password) && !this.isOnline(username)) {
+            System.out.println("Utente online: " + username + " è stato connesso");
             this.insertOnlineUser(username, password);
             return true;
         }
