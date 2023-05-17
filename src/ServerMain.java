@@ -46,10 +46,9 @@ public class ServerMain {
         }
         //System.out.println("Serializzazione" + configurationGson);
         configuration = gson.fromJson(configurationGson, Configuration.class);
-        // System.out.println("Deserializzazione" + configuration);
-        String[] options;
-        Memory memory = new Memory();
+        // System.out.println("Deserializatione" + configuration);
         String messageForClient = "";
+        Memory memory = new Memory();
         //  RMI
         try {
             //  creazione di un'istanza dell'oggetto RegisterServiceImpl
@@ -88,7 +87,7 @@ public class ServerMain {
         }
         while (true) {
             try {
-                //  bloccante finchè non arriva una richiesta di connessione
+                //  bloccante affinché non arriva una richiesta di connessione
                 selector.select();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -105,64 +104,21 @@ public class ServerMain {
                 try {
                     if (key.isAcceptable() && key.isValid()) {    //  è stata accettata la connessione
                         ServerSocketChannel server = (ServerSocketChannel) key.channel();
-                        //  l'accept mi resitutisce il canale su cui comunico con quel client
+                        //  accept mi restituisce il canale su cui comunico con quel client
                         SocketChannel client = server.accept();
                         System.out.println("Connessione accettata da " + client);
                         client.configureBlocking(false);
                         //   registro il socket che mi collega a quel settore con l'operazioni di write
                         client.register(selector, SelectionKey.OP_READ);
-                    } else if (key.isWritable() && key.isValid()) {    //  Quando la scrittura è disponibile, vado a scrivere
-                        SocketChannel client = (SocketChannel) key.channel();
-                        Utils.write(messageForClient, client);
-                        //  cambio l'operazione da write a read
-                        key.interestOps(SelectionKey.OP_READ);
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
                         SocketChannel client = (SocketChannel) key.channel();
                         String stringa = Utils.read(client);
-                        threadPoolExecutor.execute(new Worker(stringa, memory, client));
-                        options = stringa.split(" ");
-                        if (options[0].isEmpty()){
+                        if (stringa.isEmpty()){
                             key.cancel();
                             System.err.println("Connessione chiusa");
                             continue;
                         } else {
-                            switch (options[0]) {
-                                case "login":
-                                    //  login
-                                    if (memory.login(options[1], options[2])){
-                                        messageForClient = "Login effettuato con successo";
-                                    } else {
-                                        messageForClient = "Login fallito";
-                                    }
-                                    break;
-                                case "exit":
-                                    //  Exit
-                                    if (memory.logout(options[1])){
-                                        messageForClient = "Uscita dal gioco effettuato con successo";
-                                    } else {
-                                        //  Nel caso che logout restituisce false, mando la stringa vuota
-                                        messageForClient = "";
-                                    }
-                                    break;
-                                case "3":
-                                    //  PlayWordle
-                                    break;
-                                case "4":
-                                    //  sendWord
-                                    break;
-                                case "5":
-                                    //  sendMeStatistics
-                                    break;
-                                case "6":
-                                    //  share
-                                    break;
-                                case "7":
-                                    //  showMeSharing
-                                    break;
-                                case "8":
-                                    //  logout
-                                    break;
-                            }
+                            threadPoolExecutor.execute(new Worker(stringa, memory, client));
                         }
                         //  cambio l'operazione da read a write
                         key.interestOps(SelectionKey.OP_WRITE);
