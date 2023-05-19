@@ -54,6 +54,7 @@ public class Memory {
         return false;
     }
 
+    //  Metodo di logout
     public boolean logout(String username) {
         if (this.isOnline(username)) {
             System.out.println("Utente online: " + username + " è stato disconnesso");
@@ -62,4 +63,5 @@ public class Memory {
         }
         return false;
     }
+
 }
