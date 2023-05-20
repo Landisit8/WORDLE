@@ -1,7 +1,9 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.SelectionKey;
@@ -13,7 +15,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -23,55 +24,56 @@ import java.util.concurrent.TimeUnit;
 public class ServerMain {
 
     public static void main(String[] args) {
-        //  ThreadPool
+        //  dichiarazione ThreadPool
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10,
                 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-        //  variabili
+        //  variabili utili
         Memory memory = new Memory();
-        Long startTime = System.nanoTime();
         Configuration configuration = new Configuration();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Random random = new Random();
+        File file;
+        // variabili GSON
+        String configurationGson;
+        // variabili per RMI
+        RegisterServiceImpl registerService;
+        RegisterInterface stub;
+        Registry registry;
+        //  variabili per la creazione ServerSocketChannel e il selettore
+        ServerSocketChannel serverChannel;
+        Selector selector;
+        ServerSocket serverSocket;
+        InetSocketAddress address;
+        // variabili thread
+        WorkerTime workerTime = new WorkerTime(memory, configuration, gson);
+        Thread thread = new Thread(workerTime);
+        //  variabili per la configurazione
+        String fileName;
+        String os = System.getProperty("os.name").toLowerCase();
+        String workingDir = System.getProperty("user.dir");
+        String absolutePath;
 
-        //  Quando hai capito dove gestire la parte del tempo, metti i 2 parsing e poi decidi come trasportare la word
-        //  cosi avrai sia il salvataggio e il recupero della parola.
-        //  decidere se creare una variabile che comprende il numero passimo in un file
-        //  Parsing del dizionario
-        try {
-            FileReader fileReader = new FileReader(".\\src\\words.txt");
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            int index = random.nextInt(30824);
-            System.out.println("Indice: " + index);
-            String word = null;
-            for (int i = 0; i < index; i++) {
-                bufferedReader.readLine();
-                if (i == index - 1) {
-                    word = bufferedReader.readLine();
-                }
-            }
-            System.out.println("La parola da indovinare è: " + word);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        //  Parsing del backup
-        String backupGson = gson.toJson(memory);
-        File memoryFile = new File(".\\src\\backup.json");    // su mac non funziona, guardare i file separator
-        try {
-            if (memoryFile.createNewFile()) {
-                System.out.println("File backup creato");
-            } else {
-                System.out.println("File backup già esistente");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        // Deserializzazione del backup
-        memory = gson.fromJson(backupGson, Memory.class);
 
         //  Parsing della configurazione
-        File file = new File(".\\src\\config.json");    // su mac non funziona, guardare i file separator
-        String configurationGson = gson.toJson(configuration);
+        fileName = "config.json";
+        if (os.contains("win")) {
+            // se windows
+            absolutePath = workingDir + "\\" + fileName;
+        } else if (os.contains("mac")) {
+            // se mac
+            absolutePath = workingDir + "/" + fileName;
+        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+            // se unix
+            absolutePath = workingDir + "/" + fileName;
+        } else if (os.contains("sunos")) {
+            // se solaris
+            absolutePath = workingDir + "/" + fileName;
+        } else {
+            // se non riconosciuto
+            System.out.println("Sistema operativo non riconosciuto");
+            absolutePath = workingDir + "/" + fileName;
+        }
+        file = new File(absolutePath);
+        configurationGson = gson.toJson(configuration);
         try {
             if (file.createNewFile()) {
                 System.out.println("File di configurazione creato");
@@ -93,31 +95,27 @@ public class ServerMain {
         //  RMI
         try {
             //  creazione di un'istanza dell'oggetto RegisterServiceImpl
-            RegisterServiceImpl registerService = new RegisterServiceImpl(memory);
+            registerService = new RegisterServiceImpl(memory);
             //  esportazione dell'oggetto
-            RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(registerService, 0);
+            stub = (RegisterInterface) UnicastRemoteObject.exportObject(registerService, 0);
             //  creazione del registry sulla porta 1717
             LocateRegistry.createRegistry(configuration.getRegistryPort());
-            Registry r = LocateRegistry.getRegistry(configuration.getRegistryPort());
+            registry = LocateRegistry.getRegistry(configuration.getRegistryPort());
             //  pubblicazione dello stub nel registry
-            r.rebind("REGISTER-SERVICE", stub);
+            registry.rebind("REGISTER-SERVICE", stub);
             System.out.println("Server ready");
         } catch (RemoteException e) {
             System.out.println("Tipologia errore: " + e);
         }
 
-        //  Creo il ServerSocketChannel e il selettore
-        ServerSocketChannel serverChannel;
-        Selector selector;
-
         //  apro il serverSocketChannel
         try {
             serverChannel = ServerSocketChannel.open();
-            ServerSocket ss = serverChannel.socket();
+            serverSocket = serverChannel.socket();
             //  mi collego alla porta
-            InetSocketAddress address = new InetSocketAddress(configuration.getDefaultPort());
+            address = new InetSocketAddress(configuration.getDefaultPort());
             //  lo collego all'indirizzo, e ho attivato un servizio su quell'indirizzo e su quella porta
-            ss.bind(address);
+            serverSocket.bind(address);
             serverChannel.configureBlocking(false);
             //  registro il canale con un selettore, dopo averlo aperto e con la sk di accept
             selector = Selector.open();
@@ -126,6 +124,9 @@ public class ServerMain {
             e.printStackTrace();
             return;
         }
+
+        thread.start();
+        //  ciclo infinito
         while (true) {
             try {
                 //  bloccante affinché non arriva una richiesta di connessione
@@ -184,19 +185,6 @@ public class ServerMain {
         } finally {
             threadPoolExecutor.shutdownNow();
         }
+        // chiudere il thread workerTIme.
     }
 }
-
-/*
-//  salvo la memoria ogni minuto
-                    Long endTime = System.nanoTime();
-                    if (((endTime - startTime)/1000000) >= 60000) {
-                        System.out.println("E' passato 1 minuto");
-                        try(FileWriter fileWriter = new FileWriter(memoryFile)){
-                            fileWriter.write(backupGson);
-                            System.out.println("Backup salvato");
-                        }catch (IOException e){
-                            System.out.println("Errore di scrittura");
-                        }
-                    }
- */
