@@ -52,6 +52,36 @@ public class ServerMain {
         String workingDir = System.getProperty("user.dir");
         String absolutePath;
 
+        // Deserializzazione, scrivere che se esiste il file allora si carica la memory
+        fileName = "backup.json";
+        if (os.contains("win")) {
+            // se windows
+            absolutePath = workingDir + "\\" + fileName;
+        } else if (os.contains("mac")) {
+            // se mac
+            absolutePath = workingDir + "/" + fileName;
+        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+            // se unix
+            absolutePath = workingDir + "/" + fileName;
+        } else if (os.contains("sunos")) {
+            // se solaris
+            absolutePath = workingDir + "/" + fileName;
+        } else {
+            // se non riconosciuto
+            System.out.println("Sistema operativo non riconosciuto");
+            absolutePath = workingDir + "/" + fileName;
+        }
+        file = new File(absolutePath);
+        if (file.exists()){
+            //  se esiste il file allora si carica la memory
+            String backupGson = gson.toJson(memory);
+            memory = gson.fromJson(backupGson, Memory.class);
+        }
+
+        //  thread del tempo
+        thread.start();
+
+
 
         //  Parsing della configurazione
         fileName = "config.json";
@@ -125,7 +155,6 @@ public class ServerMain {
             return;
         }
 
-        thread.start();
         //  ciclo infinito
         while (true) {
             try {
@@ -172,6 +201,10 @@ public class ServerMain {
                 }
             }
         }
+
+        //  implementare la fase di chiusura del server
+        // chiudo il thread workerTIme.
+        workerTime.setStop(true);
         // chiudo il thread pool
         threadPoolExecutor.shutdown();
         try{
