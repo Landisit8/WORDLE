@@ -3,7 +3,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // Classe Memory -> Memorizzare tutti gli utenti, gestione delle statistiche, classifica ordinata, traduzione italiana
 public class Memory {
     //  gestione degli utenti
-    private final ConcurrentHashMap<String, User> users;
+    private ConcurrentHashMap<String, User> users;
     //  gestione delle utenti online
     private final ConcurrentHashMap<String, User> onlineUsers;
 
@@ -15,7 +15,7 @@ public class Memory {
     public void stampa() {
         System.out.println("Utenti registrati:");
         for (String username : this.users.keySet()) {
-            System.out.println(username);
+            System.out.println("Username: " + username);
         }
     }
 
@@ -62,6 +62,16 @@ public class Memory {
             return true;
         }
         return false;
+    }
+
+    //  Metodo che ritorna la lista degli utenti, per il backup
+    public ConcurrentHashMap<String, User> getUsers() {
+        return users;
+    }
+
+    //  metodo che setta la lista degli utenti, per il caricamento della memoria
+    public void setUsers(ConcurrentHashMap<String, User> users) {
+        this.users = users;
     }
 
 }

@@ -1,9 +1,9 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.SelectionKey;
@@ -16,6 +16,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,65 +44,48 @@ public class ServerMain {
         Selector selector;
         ServerSocket serverSocket;
         InetSocketAddress address;
-        // variabili thread
-        WorkerTime workerTime = new WorkerTime(memory, configuration, gson);
-        Thread thread = new Thread(workerTime);
         //  variabili per la configurazione
         String fileName;
-        String os = System.getProperty("os.name").toLowerCase();
-        String workingDir = System.getProperty("user.dir");
         String absolutePath;
 
         // Deserializzazione, scrivere che se esiste il file allora si carica la memory
         fileName = "backup.json";
-        if (os.contains("win")) {
-            // se windows
-            absolutePath = workingDir + "\\" + fileName;
-        } else if (os.contains("mac")) {
-            // se mac
-            absolutePath = workingDir + "/" + fileName;
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            // se unix
-            absolutePath = workingDir + "/" + fileName;
-        } else if (os.contains("sunos")) {
-            // se solaris
-            absolutePath = workingDir + "/" + fileName;
-        } else {
-            // se non riconosciuto
-            System.out.println("Sistema operativo non riconosciuto");
-            absolutePath = workingDir + "/" + fileName;
-        }
+        absolutePath = Utils.setFileSeparator(fileName);
         file = new File(absolutePath);
         if (file.exists()){
             //  se esiste il file allora si carica la memory
-            String backupGson = gson.toJson(memory);
-            memory = gson.fromJson(backupGson, Memory.class);
+            System.out.println("Caricamento della memoria...");
+
+            StringBuilder jsonInput = new StringBuilder();
+            String line;
+            //  leggo i dati salvati
+            try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                while ((line = reader.readLine()) != null) {
+                    jsonInput.append(line);
+                    jsonInput.append(System.lineSeparator());
+                }
+                // converto i dati
+                Type type = new TypeToken<ConcurrentHashMap<String,User>>(){}.getType();
+                ConcurrentHashMap<String,User> uploadUser = gson.fromJson(jsonInput.toString(),type);
+                memory.setUsers(uploadUser);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
+
+        // variabili thread
+        WorkerBackup workerBackup = new WorkerBackup(memory, configuration, gson);
+        Thread threadBackup = new Thread(workerBackup);
+        WorkerWord workerWord = new WorkerWord(memory, configuration, gson);
+        Thread threadWord = new Thread(workerWord);
         //  thread del tempo
-        thread.start();
-
-
+        threadBackup.start();
+        threadWord.start();
 
         //  Parsing della configurazione
         fileName = "config.json";
-        if (os.contains("win")) {
-            // se windows
-            absolutePath = workingDir + "\\" + fileName;
-        } else if (os.contains("mac")) {
-            // se mac
-            absolutePath = workingDir + "/" + fileName;
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            // se unix
-            absolutePath = workingDir + "/" + fileName;
-        } else if (os.contains("sunos")) {
-            // se solaris
-            absolutePath = workingDir + "/" + fileName;
-        } else {
-            // se non riconosciuto
-            System.out.println("Sistema operativo non riconosciuto");
-            absolutePath = workingDir + "/" + fileName;
-        }
+        absolutePath = Utils.setFileSeparator(fileName);
         file = new File(absolutePath);
         configurationGson = gson.toJson(configuration);
         try {
@@ -188,7 +172,8 @@ public class ServerMain {
                             key.cancel();
                             System.err.println("Connessione chiusa");
                         } else {
-                            threadPoolExecutor.execute(new Worker(stringa, memory, client));
+                            System.out.println("Messaggio ricevuto: " + stringa);
+                            threadPoolExecutor.execute(new Worker(stringa, memory, client, workerWord));
                         }
                     }
                 } catch (IOException e) {
@@ -201,10 +186,10 @@ public class ServerMain {
                 }
             }
         }
-
         //  implementare la fase di chiusura del server
         // chiudo il thread workerTIme.
-        workerTime.setStop(true);
+        workerBackup.setStop(true);
+        workerWord.setStop(true);
         // chiudo il thread pool
         threadPoolExecutor.shutdown();
         try{

@@ -5,10 +5,13 @@ public class Worker implements Runnable{
     private Memory memory;
     private SocketChannel client;
 
-    public Worker(String stringa, Memory memory, SocketChannel client) {
+    private WorkerWord generator;
+
+    public Worker(String stringa, Memory memory, SocketChannel client, WorkerWord workerWord) {
         this.stringa = stringa;
         this.memory = memory;
         this.client = client;
+        this.generator = workerWord;
     }
 
     @Override
@@ -37,7 +40,8 @@ public class Worker implements Runnable{
                     //  PlayWordle
                     break;
                 case "sendWord":
-                    //  sendWord
+                    //  sendWordù
+                    //
                     break;
                 case "sendMeStatistics":
                     //  sendMeStatistics

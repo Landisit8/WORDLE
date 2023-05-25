@@ -5,13 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="945c051a-8476-4f2c-8b5c-edeffdc20f02" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/WordleGame.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/WorkerWord.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Memory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ServerMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/WorkerTime.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/WorkerTime.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/backup.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/words.txt" beforeDir="false" afterPath="$PROJECT_DIR$/words.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Utils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Worker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/WorkerTime.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/WorkerBackup.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

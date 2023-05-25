@@ -1,4 +1,14 @@
 {
-  "users": {},
-  "onlineUsers": {}
+  "ema": {
+    "username": "ema",
+    "password": {
+      "password": "jd|"
+    }
+  },
+  "fede": {
+    "username": "fede",
+    "password": {
+      "password": ";;"
+    }
+  }
 }
