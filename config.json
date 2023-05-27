@@ -1,5 +1,5 @@
 {
-  "timeoutWord": 2,
+  "timeoutWord": 5,
   "defaultPort": 5000,
   "RegistryPort": 1717
 }

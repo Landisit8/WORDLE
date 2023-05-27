@@ -1,16 +1,16 @@
 
 public class Configuration {
-    private final int timeoutWord;
+    private final long timeoutWord;
     private final int defaultPort;
     private final int RegistryPort;
 
     public Configuration() {
-        this.timeoutWord = 2;       // minuti
+        this.timeoutWord = 5;       // minuti
         this.defaultPort = 5000;
         this.RegistryPort = 1717;
     }
 
-    public int getTimeoutWord() {
+    public long getTimeoutWord() {
         return timeoutWord;
     }
 

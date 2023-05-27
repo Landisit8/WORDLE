@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class WorkerWord implements Runnable{
     Memory memory;
@@ -12,6 +11,7 @@ public class WorkerWord implements Runnable{
     Gson gson;
 
     private boolean stop = false;
+    static volatile String wordGuess;
 
     public WorkerWord(Memory memory, Configuration configuration, Gson gson) {
             this.memory = memory;
@@ -34,22 +34,20 @@ public class WorkerWord implements Runnable{
         while (true) {
             long endTime = System.currentTimeMillis();
             long timeElapsed = endTime - checkTime;
-            if (timeElapsed >= TimeUnit.SECONDS.toMillis(20)) {   //  Parsing del dizionario
+
+            if (wordGuess == null || timeElapsed >= (configuration.getTimeoutWord()* 60000)) {   //  Parsing del dizionario
                 //  Parsing del dizionario
                 fileName = "words.txt";
                 absolutePath = Utils.setFileSeparator(fileName);
                 memoryFile = new File(absolutePath);
-                String word;
+
                 try {
-                    word = extractWord(memoryFile);
+                    wordGuess = extractWord(memoryFile);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                //  System.out.println("La parola da indovinare è: " + word);
+                System.out.println("La parola da indovinare è: " + wordGuess);
 
-                //  ogni volta che viene generata una nuova parola, viene generato una nuova partita
-                //  di wordle
-                WordleGame wordleGame = new WordleGame();
                 checkTime = System.currentTimeMillis();
             }
 

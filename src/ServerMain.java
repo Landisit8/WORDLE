@@ -52,21 +52,22 @@ public class ServerMain {
         fileName = "backup.json";
         absolutePath = Utils.setFileSeparator(fileName);
         file = new File(absolutePath);
-        if (file.exists()){
+        if (file.exists()) {
             //  se esiste il file allora si carica la memory
             System.out.println("Caricamento della memoria...");
 
             StringBuilder jsonInput = new StringBuilder();
             String line;
             //  leggo i dati salvati
-            try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 while ((line = reader.readLine()) != null) {
                     jsonInput.append(line);
                     jsonInput.append(System.lineSeparator());
                 }
                 // converto i dati
-                Type type = new TypeToken<ConcurrentHashMap<String,User>>(){}.getType();
-                ConcurrentHashMap<String,User> uploadUser = gson.fromJson(jsonInput.toString(),type);
+                Type type = new TypeToken<ConcurrentHashMap<String, User>>() {
+                }.getType();
+                ConcurrentHashMap<String, User> uploadUser = gson.fromJson(jsonInput.toString(), type);
                 memory.setUsers(uploadUser);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -97,9 +98,9 @@ public class ServerMain {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try(FileWriter fileWriter = new FileWriter(file)){
+        try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(configurationGson);
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Errore di scrittura");
         }
         //System.out.println("Serializzazione" + configurationGson);
@@ -168,12 +169,12 @@ public class ServerMain {
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
                         SocketChannel client = (SocketChannel) key.channel();
                         String stringa = Utils.read(client);
-                        if (stringa.isEmpty()){
+                        if (stringa.isEmpty()) {
                             key.cancel();
                             System.err.println("Connessione chiusa");
                         } else {
                             System.out.println("Messaggio ricevuto: " + stringa);
-                            threadPoolExecutor.execute(new Worker(stringa, memory, client, workerWord));
+                            threadPoolExecutor.execute(new Worker(stringa, memory, client));
                         }
                     }
                 } catch (IOException e) {
@@ -192,8 +193,8 @@ public class ServerMain {
         workerWord.setStop(true);
         // chiudo il thread pool
         threadPoolExecutor.shutdown();
-        try{
-            if (threadPoolExecutor.awaitTermination(1, TimeUnit.MINUTES)){
+        try {
+            if (threadPoolExecutor.awaitTermination(1, TimeUnit.MINUTES)) {
                 System.out.println("Tutti i thread sono terminati");
             } else {
                 System.out.println("Timeout scaduto");
@@ -203,6 +204,13 @@ public class ServerMain {
         } finally {
             threadPoolExecutor.shutdownNow();
         }
-        // chiudere il thread workerTIme.
+        //  chiudo la connessione, controllare che se non ci sono connessioni aperte, chiudo il server
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("Server chiuso");
+        }
     }
 }
