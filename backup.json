@@ -1,20 +1,14 @@
 {
-  "ema": {
-    "username": "ema",
-    "password": {
-      "password": "jd|"
-    }
-  },
-  "amelia": {
-    "username": "amelia",
-    "password": {
-      "password": "sdshuh"
-    }
-  },
   "fede": {
     "username": "fede",
     "password": {
       "password": ";;"
-    }
+    },
+    "lastWord": " ",
+    "numWin": 0,
+    "numGame": 0,
+    "avgAttempt": 0.0,
+    "percentWin": 0,
+    "valueClassified": 0.0
   }
 }

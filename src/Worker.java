@@ -29,7 +29,7 @@ public class Worker implements Runnable{
                     handleSendWord(options[1]);
                     break;
                 case "sendMeStatistics":
-                    //  sendMeStatistics
+                    handleStats();
                     break;
                 case "share":
                     //  share
@@ -107,6 +107,24 @@ public class Worker implements Runnable{
             try {
                 attempts = 0;
                 memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(null);
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
+
+                //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
+                        .setAvgAttempt(((attempts + 1)+memory.getOnlineUsers()
+                                .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
+                                / memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
+
+                //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getOnlineUsers()
+                        .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getOnlineUsers()
+                        .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
+
+                //  Calcolo del punteggio, numero di vittorie * media dei tentativi
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
+                        .setValueClassified(memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
+                                * memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+
                 Utils.write("Hai superato i tentativi massimi", client);
                 return;
             } catch (IOException e) {
@@ -124,8 +142,27 @@ public class Worker implements Runnable{
 
         if (word.equals(WorkerWord.wordGuess)){
             try {
-                attempts = 0;
                 memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(word);
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).incrementNumWin();
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
+
+                //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
+                        .setAvgAttempt(((attempts + 1) + memory.getOnlineUsers()
+                                .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
+                                / memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
+
+                //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getOnlineUsers()
+                        .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getOnlineUsers()
+                        .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
+
+                //  Calcolo del punteggio, numero di vittorie * media dei tentativi
+                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
+                        .setValueClassified(memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
+                                * memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+
+                attempts = 0;
                 Utils.write("Congratulazioni! Hai indovinato la parola!", client);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -161,6 +198,19 @@ public class Worker implements Runnable{
         }
 
         return response;
+    }
+
+    //  Metodo che gestisce le statistiche
+    private void handleStats() {
+        try {
+            Utils.write("Numero partite: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
+                    + "; Numero vittorie: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
+                    + "; Media tentativi: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt()
+                    + "; %vittorie: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getPercentWin()
+                    + "; Punteggio: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified(), client);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //  Metodo che gestisce il logout
