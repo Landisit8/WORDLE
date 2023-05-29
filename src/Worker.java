@@ -1,9 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -195,12 +193,20 @@ public class Worker implements Runnable{
                 throw new RuntimeException(e);
             }
         } else {
-            attempts++;
-            StringBuilder response = getWordController(word);
-            try {
-                Utils.write("Parola non indovinata, " + response + ". Tentativi rimasti: " + (MAX_ATTEMPTS - attempts), client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if(binarySearch(word)){
+                attempts++;
+                StringBuilder response = getWordController(word);
+                try {
+                    Utils.write("Parola non indovinata, " + response + ". Tentativi rimasti: " + (MAX_ATTEMPTS - attempts), client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                try {
+                    Utils.write("Parola non appartenente nel dizionario", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -225,6 +231,55 @@ public class Worker implements Runnable{
         }
 
         return response;
+    }
+
+    //  Metodo che fa la ricerca nel dizionario
+private boolean binarySearch(String word) {
+        System.out.println("Parola da cercare: " + word);
+        String fileName = "words.txt";
+        String absolutePath = Utils.setFileSeparator(fileName);
+        File file = new File(absolutePath);
+        // apro il file in lettura
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+            long fileSize = raf.length();
+            long left = 0;
+            long right = fileSize - 1;
+
+            while (left <= right) {
+                long middle = (left + right) / 2;
+                long middleLineStart = getLineStartOffset(raf, middle);
+
+                raf.seek(middleLineStart);
+                String line = raf.readLine();
+
+                if(line != null){
+                    line = line.trim();
+                    int compare = line.compareTo(word);
+
+                    if (compare < 0) {
+                        left = middle + 1;  //  Continua la ricerca nella metà superiore
+                    } else if (compare > 0) {
+                        right = middle - 1; //  Continua la ricerca nella metà inferiore
+                    } else {
+                        return true;    //  Trovato nel dizionario
+                    }
+                }
+            }
+
+            return false;   //  Non trovato nel dizionario
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private long getLineStartOffset(RandomAccessFile raf, long middle) throws IOException{
+        long lineStart = 0;
+        for(long i=0; i<middle; i++){
+            raf.seek(lineStart);
+            raf.readLine();
+            lineStart = raf.getFilePointer();
+        }
+        return lineStart;
     }
 
     //  Metodo che gestisce le statistiche

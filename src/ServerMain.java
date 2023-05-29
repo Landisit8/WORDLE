@@ -66,15 +66,13 @@ public class ServerMain {
                     jsonInput.append(System.lineSeparator());
                 }
                 // converto i dati
-                Type type = new TypeToken<ConcurrentHashMap<String, User>>() {
-                }.getType();
+                Type type = new TypeToken<ConcurrentHashMap<String, User>>() {}.getType();
                 ConcurrentHashMap<String, User> uploadUser = gson.fromJson(jsonInput.toString(), type);
                 memory.setUsers(uploadUser);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
 
         // variabili thread
         WorkerBackup workerBackup = new WorkerBackup(memory, configuration, gson);
