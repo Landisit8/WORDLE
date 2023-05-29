@@ -3,16 +3,22 @@ public class User {
     private final Password password;
 
     //Variabile per le statistiche
-    private String lastWord = " ";
-    private int numWin = 0;
-    private int numGame = 0;
-    private float avgAttempt = 0;
-    private int percentWin = 0;
-    private float valueClassified = 0;
+    private String lastWord;
+    private int numWin;
+    private int numGame;
+    private float avgAttempt;
+    private int percentWin;
+    private float valueClassified;
 
     public User(String username, String password) {
         this.username = username;
         this.password = new Password(password);
+        this.lastWord = "default";
+        this.numWin = 0;
+        this.numGame = 0;
+        this.avgAttempt = 0;
+        this.percentWin = 0;
+        this.valueClassified = 0;
     }
 
     // METODI GETTER

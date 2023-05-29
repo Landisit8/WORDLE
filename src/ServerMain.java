@@ -6,6 +6,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.BufferUnderflowException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -168,13 +169,18 @@ public class ServerMain {
                         client.register(selector, SelectionKey.OP_READ);
                     } else if (key.isReadable() && key.isValid()) {    //  Quando la lettura è disponibile, vado a leggere
                         SocketChannel client = (SocketChannel) key.channel();
-                        String stringa = Utils.read(client);
+                        String stringa;
+                        try {
+                            stringa = Utils.read(client);
+                        } catch (BufferUnderflowException e) {
+                           continue;
+                        }
                         if (stringa.isEmpty()) {
                             key.cancel();
                             System.err.println("Connessione chiusa");
                         } else {
                             System.out.println("Messaggio ricevuto: " + stringa);
-                            threadPoolExecutor.execute(new Worker(stringa, memory, client));
+                            threadPoolExecutor.execute(new Worker(stringa, memory, client, gson));
                         }
                     }
                 } catch (IOException e) {
@@ -188,29 +194,37 @@ public class ServerMain {
             }
         }
         //  implementare la fase di chiusura del server
-        // chiudo il thread workerTIme.
+        // chiudo il thread workerBackup e workerWord.
         workerBackup.setStop(true);
         workerWord.setStop(true);
-        // chiudo il thread pool
-        threadPoolExecutor.shutdown();
-        try {
-            if (threadPoolExecutor.awaitTermination(1, TimeUnit.MINUTES)) {
-                System.out.println("Tutti i thread sono terminati");
-            } else {
-                System.out.println("Timeout scaduto");
+
+        try{
+            //  chiudo il selector
+            selector.close();
+
+            //  annullo la registrazione del servizio e chiudo il registry
+            for (SelectionKey key : selector.keys()) {
+                key.cancel();
+                key.channel().close();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            threadPoolExecutor.shutdownNow();
-        }
-        //  chiudo la connessione, controllare che se non ci sono connessioni aperte, chiudo il server
-        try {
-            serverSocket.close();
+
+            // chiudo il thread pool
+            threadPoolExecutor.shutdown();
+
+            try{
+                //  attendi la terminazione dei thread nel thread pool
+                if (!threadPoolExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    //  interrompo i thread nel thread pool
+                    threadPoolExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                //  Ripristino lo stato interrotto
+                Thread.currentThread().interrupt();
+            }
+            serverChannel.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            System.out.println("Server chiuso");
         }
     }
 }

@@ -1,17 +1,28 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 
 public class Worker implements Runnable{
     private String stringa;
     private Memory memory;
     private SocketChannel client;
+    private Gson gson;
     private static int attempts = 0;   //  Tentativi effettuati
     private static final int MAX_ATTEMPTS = 3;   //  Numero massimo di tentativi
 
-    public Worker(String stringa, Memory memory, SocketChannel client) {
+    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson) {
         this.stringa = stringa;
         this.memory = memory;
         this.client = client;
+        this.gson = gson;
     }
 
     @Override
@@ -66,7 +77,7 @@ public class Worker implements Runnable{
     public void playWordle(){
         String word = WorkerWord.wordGuess;
         memory.stampa();
-        String lastWordGuessed = memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getLastWord();
+        String lastWordGuessed = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord();
         String word2 = word;
 
         if (word.isEmpty()) {
@@ -105,27 +116,35 @@ public class Worker implements Runnable{
     public void handleSendWord(String word){
         if (attempts >= MAX_ATTEMPTS) {
             try {
-                attempts = 0;
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(null);
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
+                if (memory.isOnline(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername())) {
 
-                //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
-                        .setAvgAttempt(((attempts + 1)+memory.getOnlineUsers()
-                                .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
-                                / memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord("default");
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
 
-                //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getOnlineUsers()
-                        .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getOnlineUsers()
-                        .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
+                    //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client))
+                            .setAvgAttempt(((attempts + 1) + memory.getUsers()
+                                    .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
+                                    / memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
 
-                //  Calcolo del punteggio, numero di vittorie * media dei tentativi
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
-                        .setValueClassified(memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
-                                * memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+                    //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getUsers()
+                            .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getUsers()
+                            .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
 
-                Utils.write("Hai superato i tentativi massimi", client);
+                    //  Calcolo del punteggio, numero di vittorie * media dei tentativi
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client))
+                            .setValueClassified(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
+                                    * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+
+                    //  traduzione della parola
+                    String traslation = getItalianTranslation(word);
+
+                    attempts = 0;
+                    Utils.write("Hai superato i tentativi massimi" + " La parola tradotta è: " + traslation, client);
+                }else {
+                    Utils.write("Errore di connessione", client);
+                }
                 return;
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -142,28 +161,36 @@ public class Worker implements Runnable{
 
         if (word.equals(WorkerWord.wordGuess)){
             try {
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(word);
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).incrementNumWin();
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
+                if (memory.isOnline(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername())) {
 
-                //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
-                        .setAvgAttempt(((attempts + 1) + memory.getOnlineUsers()
-                                .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
-                                / memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(word);
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumWin();
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
 
-                //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getOnlineUsers()
-                        .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getOnlineUsers()
-                        .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
+                    //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client))
+                            .setAvgAttempt(((attempts + 1) + memory.getUsers()
+                                    .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
+                                    / memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
 
-                //  Calcolo del punteggio, numero di vittorie * media dei tentativi
-                memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client))
-                        .setValueClassified(memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
-                                * memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+                    //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getUsers()
+                            .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getUsers()
+                            .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
 
-                attempts = 0;
-                Utils.write("Congratulazioni! Hai indovinato la parola!", client);
+                    //  Calcolo del punteggio, numero di vittorie * media dei tentativi
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client))
+                            .setValueClassified(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
+                                    * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+
+                    //  traduzione della parola
+                    String traslation = getItalianTranslation(word);
+
+                    attempts = 0;
+                    Utils.write("Congratulazioni! Hai indovinato la parola! " + " La parola tradotta è: " + traslation, client);
+                } else {
+                    Utils.write("Errore di connessione", client);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -203,11 +230,11 @@ public class Worker implements Runnable{
     //  Metodo che gestisce le statistiche
     private void handleStats() {
         try {
-            Utils.write("Numero partite: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
-                    + "; Numero vittorie: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
-                    + "; Media tentativi: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt()
-                    + "; %vittorie: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getPercentWin()
-                    + "; Punteggio: " + memory.getOnlineUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified(), client);
+            Utils.write("Numero partite: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
+                    + "; Numero vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
+                    + "; Media tentativi: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt()
+                    + "; %vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getPercentWin()
+                    + "; Punteggio: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified(), client);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -228,5 +255,41 @@ public class Worker implements Runnable{
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    //  Metodo che gestisce la traduzione della parola
+    private String getItalianTranslation(String word) throws IOException{
+        String url = "https://api.mymemory.translated.net/get";
+        String lang = "en|it";
+        String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
+
+        String query = String.format("q=%s&langpair=%s", encodedWord, lang);
+        String fullUrl = url + "?" + query;
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(fullUrl).openConnection();
+        connection.setRequestMethod("GET");
+
+        int respondeCode = connection.getResponseCode();
+        if (respondeCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null){
+                response.append(inputLine);
+            }
+            in.close();
+
+            //  parsing della risposta JSON per ottenere la traduzione
+            return extractTranslation(response.toString());
+        } else {
+            throw new RuntimeException("Errore nella traduzione della parola");
+        }
+    }
+
+    //  Metodo che estrae la traduzione dalla risposta JSON
+    private String extractTranslation(String response) {
+        JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
+        return jsonObject.getAsJsonObject("responseData").get("translatedText").getAsString();
     }
 }
