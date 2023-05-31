@@ -1,12 +1,16 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class Worker implements Runnable{
     private String stringa;
@@ -15,6 +19,7 @@ public class Worker implements Runnable{
     private Gson gson;
     private static int attempts = 0;   //  Tentativi effettuati
     private static final int MAX_ATTEMPTS = 3;   //  Numero massimo di tentativi
+    private ArrayList<String> dictionary;
 
     public Worker(String stringa, Memory memory, SocketChannel client, Gson gson) {
         this.stringa = stringa;
@@ -193,7 +198,7 @@ public class Worker implements Runnable{
                 throw new RuntimeException(e);
             }
         } else {
-            if(binarySearch(word)){
+            if(binarySearchDictionary(word)){
                 attempts++;
                 StringBuilder response = getWordController(word);
                 try {
@@ -233,53 +238,52 @@ public class Worker implements Runnable{
         return response;
     }
 
-    //  Metodo che fa la ricerca nel dizionario
-private boolean binarySearch(String word) {
-        System.out.println("Parola da cercare: " + word);
-        String fileName = "words.txt";
-        String absolutePath = Utils.setFileSeparator(fileName);
-        File file = new File(absolutePath);
-        // apro il file in lettura
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            long fileSize = raf.length();
-            long left = 0;
-            long right = fileSize - 1;
+    //  controllo se il dizionario è stato inizializzato
+    private boolean binarySearchDictionary(String word){
+        if (dictionary == null)
+            initializeDictionary(word);
+        return binarySearch(dictionary, word);
+    }
 
-            while (left <= right) {
-                long middle = (left + right) / 2;
-                long middleLineStart = getLineStartOffset(raf, middle);
+    //  Metodo per inizializzare il dizionario
+    private void initializeDictionary(String word) {
+        dictionary = new ArrayList<>();
+        try {
+            //  gestire questo dettaglio
+            String fileName = "words.txt";
+            String absolutePath = Utils.setFileSeparator(fileName);
+            FileInputStream file = new FileInputStream(absolutePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(file));
 
-                raf.seek(middleLineStart);
-                String line = raf.readLine();
-
-                if(line != null){
-                    line = line.trim();
-                    int compare = line.compareTo(word);
-
-                    if (compare < 0) {
-                        left = middle + 1;  //  Continua la ricerca nella metà superiore
-                    } else if (compare > 0) {
-                        right = middle - 1; //  Continua la ricerca nella metà inferiore
-                    } else {
-                        return true;    //  Trovato nel dizionario
-                    }
-                }
+            String line;
+            while ((line = br.readLine()) != null) {
+                dictionary.add(line);
             }
-
-            return false;   //  Non trovato nel dizionario
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            br.close();
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private long getLineStartOffset(RandomAccessFile raf, long middle) throws IOException{
-        long lineStart = 0;
-        for(long i=0; i<middle; i++){
-            raf.seek(lineStart);
-            raf.readLine();
-            lineStart = raf.getFilePointer();
+    //  Metodo che esegue la ricerca binaria
+    private boolean binarySearch(ArrayList<String> dictionary, String word) {
+        int left = 0;
+        int right = dictionary.size() - 1;
+
+        while (left <= right) {
+            int middle = left + (right - left) / 2;
+            int result = word.compareTo(dictionary.get(middle));
+
+            if (result == 0) {
+                return true;
+            } else if (result > 0) {
+                left = middle + 1;  // cerca nella parte destra
+            } else {
+                right = middle - 1; // cerca nella parte sinistra
+            }
         }
-        return lineStart;
+        return false;
     }
 
     //  Metodo che gestisce le statistiche
