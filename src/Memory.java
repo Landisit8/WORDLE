@@ -19,7 +19,7 @@ public class Memory {
     public void stampa() {
         System.out.println("Utenti registrati:");
         for (SocketChannel username : this.UserSocketChannel.keySet()) {
-            System.out.println(username + " " + this.UserSocketChannel.containsValue("fede"));
+            System.out.println(username + " -> " + this.UserSocketChannel.get(username));
         }
     }
 
@@ -73,13 +73,22 @@ public class Memory {
     }
 
     //  Metodo di logout
-    public boolean logout(String username) {
-        if (this.isOnline(username)) {
-            System.out.println("Utente online: " + username + " è stato disconnesso");
-            this.removeOnlineUser(username);
-            return true;
+    public int logout(String username) {
+        System.out.println("-1");
+        if (this.isRegistered(username)) {
+            if (this.isOnline(username)) {
+                System.out.println("Utente online: " + username + " è stato disconnesso");
+                this.removeOnlineUser(username);
+                System.out.println("0");
+                return 0; //  Logout effettuato
+            } else {
+                System.out.println("1");
+                return 1; //  Utente non online
+            }
+        } else {
+            System.out.println("2");
+            return 2; //  Username sbagliata
         }
-        return false;
     }
 
     //  METODI GET

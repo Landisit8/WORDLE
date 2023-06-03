@@ -20,13 +20,13 @@
       "password": ";;"
     },
     "lastWord": "default",
-    "numWin": 2,
-    "numGame": 3,
-    "avgAttempt": 1.6666666,
+    "numWin": 3,
+    "numGame": 5,
+    "avgAttempt": 0.9333333,
     "percentWin": 0,
     "streakWin": 0,
     "maxStreakWin": 2,
-    "valueClassified": 3.3333333,
+    "valueClassified": 2.7999997,
     "flag": true
   }
 }

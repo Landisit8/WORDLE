@@ -5,9 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -56,12 +54,21 @@ public class Worker implements Runnable{
                     break;
                 case "share":
                     //  share
+                    try(DatagramSocket socket = new DatagramSocket()){
+                        InetAddress group = InetAddress.getByName("226.226.226.226");
+                        byte[] buffer = "notificaProva".getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, 5001);
+                        socket.send(packet);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "showMeSharing":
                     //  showMeSharing
                     break;
                 case "logout":
                     //  logout
+                    System.out.println("Logout");
                     handleLogout(options[1]);
                     break;
         }
@@ -69,32 +76,44 @@ public class Worker implements Runnable{
 
     //  Metodo che gestisce il login
     private void handleLogin(String username, String password){
-        int tmp = memory.login(username, password);
         //  fare uno switch case
-        if (tmp == 0) {
-            try {
-                Utils.write("Codice 010, Login effettuato", client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (tmp == 1) {
-            try {
-                Utils.write("Codice 011, Utente già online", client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (tmp == 2) {
-            try {
-                Utils.write("Codice 012, Password errata", client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (tmp == 3) {
-            try {
-                Utils.write("Codice 013, Utente non registrato", client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        switch (memory.login(username, password)){
+            case 0:
+                try {
+                    memory.insertUserSocketChannel(username, client);
+                    Utils.write("Codice 010, Login effettuato", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 1:
+                try {
+                    Utils.write("Codice 011, Utente già online", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 2:
+                try {
+                    Utils.write("Codice 012, Password errata", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 3:
+                try {
+                    Utils.write("Codice 013, Utente non registrato", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            default:
+                try {
+                    Utils.write("Codice 100, errore di connessione", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
         }
     }
 
@@ -335,27 +354,32 @@ public class Worker implements Runnable{
 
     //  Metodo che gestisce il logout
     private void handleLogout(String username) {
-        if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername().equals(username)) {
-            if (memory.logout(username)) {
-                try {
-                    Utils.write("Codice 020, Uscita dal gioco effettuato con successo", client);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                try {
-                    Utils.write("Codice 021, L'utente inserito non è online", client);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+            switch (memory.logout(username)){
+                case 0:
+                    System.out.println("Codice 020, Logout effettuato con successo");
+                    try {
+                        Utils.write("Codice 020, Logout effettuato con successo", client);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case 1:
+                    System.out.println("Codice 021, Utente non è online");
+                    try {
+                        Utils.write("Codice 021, Utente non è online", client);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case 2:
+                    System.out.println("Codice 022, Username sbagliata");
+                    try {
+                        Utils.write("Codice 022, Username sbagliata", client);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
             }
-        } else {
-            try {
-                Utils.write("Codice 022, Username sbagliata", client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     //  Metodo che gestisce la traduzione della parola
