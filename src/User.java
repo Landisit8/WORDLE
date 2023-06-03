@@ -8,7 +8,10 @@ public class User {
     private int numGame;
     private float avgAttempt;
     private int percentWin;
+    private int streakWin;
+    private int maxStreakWin;
     private float valueClassified;
+    private boolean flag;
 
     public User(String username, String password) {
         this.username = username;
@@ -18,7 +21,10 @@ public class User {
         this.numGame = 0;
         this.avgAttempt = 0;
         this.percentWin = 0;
+        this.streakWin = 0;
+        this.maxStreakWin = 0;
         this.valueClassified = 0;
+        this.flag = true;
     }
 
     // METODI GETTER
@@ -50,8 +56,20 @@ public class User {
         return percentWin;
     }
 
+    public int getStreakWin() {
+        return streakWin;
+    }
+
+    public int getMaxStreakWin() {
+        return maxStreakWin;
+    }
+
     public float getValueClassified() {
         return valueClassified;
+    }
+
+    public boolean getFlag() {
+        return flag;
     }
 
     // METODI SETTER
@@ -69,6 +87,21 @@ public class User {
 
     public void setValueClassified(float valueClassified) {
         this.valueClassified = valueClassified;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
+
+    public void setStreakWin(int streakWin) {
+        this.streakWin = streakWin;
+    }
+
+    public void setMaxStreakWin(int streakWin) {
+        //  algoritmo del massimo
+        if (streakWin > this.maxStreakWin) {
+            this.maxStreakWin = streakWin;
+        }
     }
 
     // METODI COUNTERS

@@ -1,0 +1,31 @@
+REGISTRAZIONE
+001 -> Registrazione, effettuata
+002 -> Registrazione, username già presente
+003 -> Registrazione, password vuota
+LOGIN
+010 -> Login, effettuato
+011 -> Login, login già effettuato
+012 -> Login, password errata
+013 -> Login, utente non registrato
+LOGOUT
+020 -> Logout, effettuato
+021 -> Logout, non è online
+022 -> Logout, username sbagliata
+PLAY
+030 -> Play, può giocare
+031 -> Play, già giocato
+SEND
+040 -> Send, inviato
+041 -> Send, superato tentativi
+042 -> Send, parola non indovinata
+043 -> Send, parola non presente
+STATISTIC
+050 -> Statistic, stampa
+SHARE
+060 -> Share,
+SHOW
+070 -> Show,
+MESSAGGI
+100 -> Messaggio, errore di connessione
+101 -> Messaggio, prima playwordle
+

@@ -1,14 +1,32 @@
 {
+  "cecce": {
+    "username": "cecce",
+    "password": {
+      "password": "mxyhqwxv"
+    },
+    "lastWord": "default",
+    "numWin": 0,
+    "numGame": 0,
+    "avgAttempt": 0.0,
+    "percentWin": 0,
+    "streakWin": 0,
+    "maxStreakWin": 0,
+    "valueClassified": 0.0,
+    "flag": true
+  },
   "fede": {
     "username": "fede",
     "password": {
       "password": ";;"
     },
-    "lastWord": "infraction",
-    "numWin": 4,
-    "numGame": 4,
-    "avgAttempt": 1.0,
-    "percentWin": 100,
-    "valueClassified": 4.0
+    "lastWord": "default",
+    "numWin": 2,
+    "numGame": 3,
+    "avgAttempt": 1.6666666,
+    "percentWin": 0,
+    "streakWin": 0,
+    "maxStreakWin": 2,
+    "valueClassified": 3.3333333,
+    "flag": true
   }
 }

@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="945c051a-8476-4f2c-8b5c-edeffdc20f02" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/CodeError.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/backup.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Memory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/RegisterInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RegisterInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/RegisterServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RegisterServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Worker.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,7 +55,7 @@
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;java.suggest.annotation.dependency&quot;: &quot;false&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/feder/OneDrive - University of Pisa/Documenti/GitHub/WORDLECLIENT&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15527344&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
@@ -85,12 +90,17 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/User.java</url>
-          <line>48</line>
+          <line>54</line>
           <properties class="User" method="getPercentWin">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Memory.java</url>
+          <line>76</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

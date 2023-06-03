@@ -38,9 +38,18 @@ public class Worker implements Runnable{
                     break;
                 case "playWordle":
                     playWordle();
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setFlag(true);
                     break;
                 case "sendWord":
-                    handleSendWord(options[1]);
+                    if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getFlag())
+                        handleSendWord(options[1]);
+                    else {
+                        try {
+                            Utils.write("Codice 101, Esegui prima playwordle", client);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                     break;
                 case "sendMeStatistics":
                     handleStats();
@@ -60,16 +69,29 @@ public class Worker implements Runnable{
 
     //  Metodo che gestisce il login
     private void handleLogin(String username, String password){
-        if (memory.login(username, password)){
+        int tmp = memory.login(username, password);
+        //  fare uno switch case
+        if (tmp == 0) {
             try {
-                memory.insertUserSocketChannel(username, client);
-                Utils.write("Login effettuato con successo", client);
+                Utils.write("Codice 010, Login effettuato", client);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
+        } else if (tmp == 1) {
             try {
-                Utils.write("Login fallito", client);
+                Utils.write("Codice 011, Utente già online", client);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (tmp == 2) {
+            try {
+                Utils.write("Codice 012, Password errata", client);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (tmp == 3) {
+            try {
+                Utils.write("Codice 013, Utente non registrato", client);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -79,13 +101,12 @@ public class Worker implements Runnable{
     //  Metodo che gestisce il playWordle
     public void playWordle(){
         String word = WorkerWord.wordGuess;
-        memory.stampa();
         String lastWordGuessed = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord();
         String word2 = word;
 
         if (word.isEmpty()) {
             try {
-                Utils.write("Errore nel sistema, ", client);
+                Utils.write("Codice 032, Non è stata generata la parola da indovinare", client);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -94,20 +115,20 @@ public class Worker implements Runnable{
             if (!word2.equals(WorkerWord.wordGuess)) {
                 try {
                     word = WorkerWord.wordGuess;
-                    Utils.write("Inizio Partita ed è cambiata la parola ", client);
+                    Utils.write("Codice 033, Inizio Partita ed è cambiata la parola ", client);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
             if (lastWordGuessed.equals(word)) {
                 try {
-                    Utils.write("Hai già giocato questa parola", client);
+                    Utils.write("Codice 031, Hai già giocato questa parola", client);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             } else {
                 try {
-                    Utils.write("INIZIO PARTITA", client);
+                    Utils.write("Codice 030, INIZIO PARTITA", client);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -123,6 +144,9 @@ public class Worker implements Runnable{
 
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord("default");
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
+
+                    //  setto la striscia di vittorie
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setStreakWin(0);
 
                     //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
                     memory.getUsers().get(memory.getUserSocketChannel().get(client))
@@ -141,12 +165,12 @@ public class Worker implements Runnable{
                                     * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
 
                     //  traduzione della parola
-                    String traslation = getItalianTranslation(word);
+                    String traslation = getItalianTranslation(WorkerWord.wordGuess);
 
                     attempts = 0;
-                    Utils.write("Hai superato i tentativi massimi" + " La parola tradotta è: " + traslation, client);
-                }else {
-                    Utils.write("Errore di connessione", client);
+                    Utils.write("Codice 041, Hai superato i tentativi massimi" + " La parola tradotta è: " + traslation, client);
+                } else {
+                    Utils.write("Codice 100, Errore di connessione", client);
                 }
                 return;
             } catch (IOException e) {
@@ -165,10 +189,17 @@ public class Worker implements Runnable{
         if (word.equals(WorkerWord.wordGuess)){
             try {
                 if (memory.isOnline(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername())) {
-
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(word);
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumWin();
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
+
+                    //  setto la striscia di vittorie
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setStreakWin(memory.getUsers()
+                            .get(memory.getUserSocketChannel().get(client)).getStreakWin() + 1);
+
+                    //  Calcolo la massima striscia di vittorie
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setMaxStreakWin(memory.getUsers()
+                                    .get(memory.getUserSocketChannel().get(client)).getStreakWin());
 
                     //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
                     memory.getUsers().get(memory.getUserSocketChannel().get(client))
@@ -186,13 +217,14 @@ public class Worker implements Runnable{
                             .setValueClassified(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
                                     * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
 
+
                     //  traduzione della parola
                     String traslation = getItalianTranslation(word);
 
                     attempts = 0;
-                    Utils.write("Congratulazioni! Hai indovinato la parola! " + " La parola tradotta è: " + traslation, client);
+                    Utils.write("Codice 040, Congratulazioni! Hai indovinato la parola! " + " La parola tradotta è: " + traslation, client);
                 } else {
-                    Utils.write("Errore di connessione", client);
+                    Utils.write("Codice 100, Errore di connessione", client);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -202,13 +234,13 @@ public class Worker implements Runnable{
                 attempts++;
                 StringBuilder response = getWordController(word);
                 try {
-                    Utils.write("Parola non indovinata, " + response + ". Tentativi rimasti: " + (MAX_ATTEMPTS - attempts), client);
+                    Utils.write("Codice 042, Parola non indovinata, " + response + ". Tentativi rimasti: " + (MAX_ATTEMPTS - attempts), client);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             } else {
                 try {
-                    Utils.write("Parola non appartenente nel dizionario", client);
+                    Utils.write("Codice 043, Parola non appartenente nel dizionario", client);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -289,10 +321,12 @@ public class Worker implements Runnable{
     //  Metodo che gestisce le statistiche
     private void handleStats() {
         try {
-            Utils.write("Numero partite: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
+            Utils.write("Codice 050, Numero partite: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
                     + "; Numero vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
                     + "; Media tentativi: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt()
-                    + "; %vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getPercentWin()
+                    + "; Striscia vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getStreakWin()
+                    + "; Massimo striscia vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getMaxStreakWin()
+                    + "; Vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getPercentWin() + "%"
                     + "; Punteggio: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified(), client);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -301,15 +335,23 @@ public class Worker implements Runnable{
 
     //  Metodo che gestisce il logout
     private void handleLogout(String username) {
-        if (memory.logout(username)) {
-            try {
-                Utils.write("Uscita dal gioco effettuato con successo", client);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername().equals(username)) {
+            if (memory.logout(username)) {
+                try {
+                    Utils.write("Codice 020, Uscita dal gioco effettuato con successo", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                try {
+                    Utils.write("Codice 021, L'utente inserito non è online", client);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         } else {
             try {
-                Utils.write("Username errato", client);
+                Utils.write("Codice 022, Username sbagliata", client);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

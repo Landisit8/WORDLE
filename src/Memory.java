@@ -54,13 +54,22 @@ public class Memory {
     }
 
     //  Metodo di login,
-    public boolean login(String username, String password) {
-        if (this.isRegistered(username) && this.users.get(username).getPassword().equals(password) && !this.isOnline(username)) {
-            System.out.println("Utente online: " + username + " è stato connesso");
-            this.insertOnlineUser(username, password);
-            return true;
+    public int login(String username, String password) {
+        if (this.isRegistered(username)){
+            if (this.users.get(username).getPassword().equals(password)){
+                if (!this.isOnline(username)){
+                    System.out.println("Utente online: " + username + " è stato connesso");
+                    this.insertOnlineUser(username, password);
+                    return 0; //  Login effettuato
+                } else {
+                    return 1; //  Utente già online
+                }
+            } else {
+                return 2; //  Password errata
+            }
+        } else {
+            return 3; //  Utente non registrato
         }
-        return false;
     }
 
     //  Metodo di logout
