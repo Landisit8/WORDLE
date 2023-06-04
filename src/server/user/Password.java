@@ -1,3 +1,5 @@
+package server.user;
+
 public class Password {
     //  Scrivere metodi per la gestione della password, forse mettere i metodi per
     //  Controllare l'utente che vuole fare quella operazione sia lo stesso che deve fare quella operazione

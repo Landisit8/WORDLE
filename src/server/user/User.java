@@ -1,3 +1,5 @@
+package server.user;
+
 public class User {
     private final String username;
     private final Password password;
@@ -24,7 +26,7 @@ public class User {
         this.streakWin = 0;
         this.maxStreakWin = 0;
         this.valueClassified = 0;
-        this.flag = true;
+        this.flag = false;
     }
 
     // METODI GETTER
@@ -112,7 +114,4 @@ public class User {
     public void incrementNumGame() {
         this.numGame++;
     }
-
-
-
 }

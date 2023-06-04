@@ -1,5 +1,8 @@
+package server;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import shared.Utils;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -11,25 +14,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Worker implements Runnable{
-    private String stringa;
+    private String mStringa;
     private Memory memory;
     private SocketChannel client;
     private Gson gson;
+    private Configuration configuration;
     private static int attempts = 0;   //  Tentativi effettuati
     private static final int MAX_ATTEMPTS = 3;   //  Numero massimo di tentativi
     private ArrayList<String> dictionary;
 
-    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson) {
-        this.stringa = stringa;
+    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson, Configuration configuration){
+        this.mStringa = stringa;
         this.memory = memory;
         this.client = client;
         this.gson = gson;
+        this.configuration = configuration;
     }
 
     @Override
     public void run() {
-        System.out.println("Worker: " + stringa);
-        String[] options = stringa.split(" ");
+        System.out.println("server.Worker: " + mStringa);
+        String[] options = mStringa.split(" ");
         switch (options[0]) {
                 case "login":
                     handleLogin(options[1], options[2]);
@@ -56,15 +61,52 @@ public class Worker implements Runnable{
                     //  share
                     try(DatagramSocket socket = new DatagramSocket()){
                         InetAddress group = InetAddress.getByName("226.226.226.226");
-                        byte[] buffer = "notificaProva".getBytes();
+
+                        String message = null;
+                        switch (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord()){
+                            case "default":
+                                try {
+                                    Utils.write("Codice 061, Non hai ancora giocato", client);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                break;
+                            case "loser":
+                                message = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername() + " ha perso";
+                                try {
+                                    Utils.write("Codice 060, Condiviso con successo", client);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                break;
+                            default:
+                                message = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername() + " ha vinto";
+                                try {
+                                    Utils.write("Codice 060, Condiviso con successo", client);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                break;
+                        }
+
+                        if (message == null)
+                            break;
+
+                        byte[] buffer = message.getBytes();
+
+                        //  Dalla lunghezza del messaggio lo trasformo in una stringa e infine in un array di byte
+                        String lengthMessage = String.valueOf(message.length());
+                        byte[] size = lengthMessage.getBytes();
+
+                        DatagramPacket sizePacket = new DatagramPacket(size, size.length, group, 5001);
+                        socket.send(sizePacket);
+
                         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, 5001);
                         socket.send(packet);
+
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    break;
-                case "showMeSharing":
-                    //  showMeSharing
                     break;
                 case "logout":
                     //  logout
@@ -121,7 +163,6 @@ public class Worker implements Runnable{
     public void playWordle(){
         String word = WorkerWord.wordGuess;
         String lastWordGuessed = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord();
-        String word2 = word;
 
         if (word.isEmpty()) {
             try {
@@ -130,15 +171,6 @@ public class Worker implements Runnable{
                 throw new RuntimeException(e);
             }
         } else {
-            //  da togliere perché si manda una notifica a tutti gli utenti
-            if (!word2.equals(WorkerWord.wordGuess)) {
-                try {
-                    word = WorkerWord.wordGuess;
-                    Utils.write("Codice 033, Inizio Partita ed è cambiata la parola ", client);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
             if (lastWordGuessed.equals(word)) {
                 try {
                     Utils.write("Codice 031, Hai già giocato questa parola", client);
@@ -157,11 +189,12 @@ public class Worker implements Runnable{
 
     //  Metodo che controlla la parola inserita dall'utente
     public void handleSendWord(String word){
+        //  caso che l'utente ha finito i tentativi
         if (attempts >= MAX_ATTEMPTS) {
             try {
                 if (memory.isOnline(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername())) {
 
-                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord("default");
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord("loser");
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
 
                     //  setto la striscia di vittorie
@@ -302,7 +335,7 @@ public class Worker implements Runnable{
         try {
             //  gestire questo dettaglio
             String fileName = "words.txt";
-            String absolutePath = Utils.setFileSeparator(fileName);
+            String absolutePath = configuration.setFileSeparator(fileName);
             FileInputStream file = new FileInputStream(absolutePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(file));
 

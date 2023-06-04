@@ -1,3 +1,7 @@
+package shared.rmi;
+
+import server.Memory;
+
 import java.rmi.RemoteException;
 public class RegisterServiceImpl implements RegisterInterface{
     private final Memory memory;

@@ -1,3 +1,5 @@
+package shared;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -22,25 +24,5 @@ public class Utils {
         while (input.hasRemaining())    canale.read(input);
         input.flip();
         return new String(input.array());
-    }
-
-    //  metodo per settare il file separator
-    public static String setFileSeparator(String fileName){
-        String os = System.getProperty("os.name").toLowerCase();
-        String workingDir = System.getProperty("user.dir");
-        String absolutePath;
-        if (os.contains("win")) {
-            absolutePath = workingDir + "\\" + fileName;
-        } else if (os.contains("mac")) {
-            absolutePath = workingDir + "/" + fileName;
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            absolutePath = workingDir + "/" + fileName;
-        } else if (os.contains("sunos")) {
-            absolutePath = workingDir + "/" + fileName;
-        } else {
-            System.out.println("Sistema operativo non riconosciuto");
-            absolutePath = workingDir + "/" + fileName;
-        }
-        return absolutePath;
     }
 }

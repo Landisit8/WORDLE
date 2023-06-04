@@ -22,9 +22,11 @@ SEND
 STATISTIC
 050 -> Statistic, stampa
 SHARE
-060 -> Share,
+060 -> Share, condivisione fatta
+061 -> Share, non è stata giocata nessuna partita
 SHOW
-070 -> Show,
+070 -> Show, stampa con successo
+071 -> Show, lista vuota
 MESSAGGI
 100 -> Messaggio, errore di connessione
 101 -> Messaggio, prima playwordle

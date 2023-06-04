@@ -1,3 +1,5 @@
+package server;
+
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -32,7 +34,7 @@ public class WorkerBackup implements Runnable {
             long timeElapsed = endTime - checkTime;
             if (timeElapsed >= TimeUnit.SECONDS.toMillis(15)) {   //  Parsing del backup
                 fileName = "backup.json";
-                absolutePath = Utils.setFileSeparator(fileName);
+                absolutePath = configuration.setFileSeparator(fileName);
                 memoryFile = new File(absolutePath);
                 //  faccio io backup solo agli utenti salvati
                 String backupGson = gson.toJson(memory.getUsers());

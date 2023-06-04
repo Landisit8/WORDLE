@@ -1,0 +1,5 @@
+{
+  "defaultPort": 5000,
+  "registryPort": 1717,
+  "hostname": "localhost"
+}

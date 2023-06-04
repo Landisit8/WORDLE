@@ -19,14 +19,14 @@
     "password": {
       "password": ";;"
     },
-    "lastWord": "default",
-    "numWin": 3,
-    "numGame": 5,
-    "avgAttempt": 0.9333333,
+    "lastWord": "episcopate",
+    "numWin": 9,
+    "numGame": 11,
+    "avgAttempt": 0.1920723,
     "percentWin": 0,
-    "streakWin": 0,
-    "maxStreakWin": 2,
-    "valueClassified": 2.7999997,
+    "streakWin": 6,
+    "maxStreakWin": 6,
+    "valueClassified": 1.7286507,
     "flag": true
   }
 }

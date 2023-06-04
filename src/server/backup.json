@@ -1,0 +1,47 @@
+{
+  "cecce": {
+    "username": "cecce",
+    "password": {
+      "password": "mxyhqwxv"
+    },
+    "lastWord": "default",
+    "numWin": 0,
+    "numGame": 0,
+    "avgAttempt": 0.0,
+    "percentWin": 0,
+    "streakWin": 0,
+    "maxStreakWin": 0,
+    "valueClassified": 0.0,
+    "flag": true
+  },
+  "leo": {
+    "username": "leo",
+    "password": {
+      "password": "ohr"
+    },
+    "lastWord": "untellable",
+    "numWin": 1,
+    "numGame": 1,
+    "avgAttempt": 1.0,
+    "percentWin": 100,
+    "streakWin": 1,
+    "maxStreakWin": 1,
+    "valueClassified": 1.0,
+    "flag": true
+  },
+  "fede": {
+    "username": "fede",
+    "password": {
+      "password": ";;"
+    },
+    "lastWord": "believable",
+    "numWin": 3,
+    "numGame": 3,
+    "avgAttempt": 0.6666667,
+    "percentWin": 100,
+    "streakWin": 3,
+    "maxStreakWin": 3,
+    "valueClassified": 2.0,
+    "flag": true
+  }
+}

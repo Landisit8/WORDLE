@@ -1,3 +1,5 @@
+package server;
+
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -38,11 +40,12 @@ public class WorkerWord implements Runnable{
             if (wordGuess == null || timeElapsed >= (configuration.getTimeoutWord()* 60000)) {   //  Parsing del dizionario
                 //  Parsing del dizionario
                 fileName = "words.txt";
-                absolutePath = Utils.setFileSeparator(fileName);
+                absolutePath = configuration.setFileSeparator(fileName);
                 memoryFile = new File(absolutePath);
 
                 try {
                     wordGuess = extractWord(memoryFile);
+                    memory.setFlag();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

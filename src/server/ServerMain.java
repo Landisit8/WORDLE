@@ -1,6 +1,14 @@
+package server;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import server.user.Ranking;
+import server.user.User;
+import shared.RankingServerInterface;
+import shared.Utils;
+import shared.rmi.RegisterInterface;
+import shared.rmi.RegisterServiceImpl;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -11,6 +19,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -48,10 +57,11 @@ public class ServerMain {
         //  variabili per la configurazione
         String fileName;
         String absolutePath;
-
+        //  creazione della classifica
+        Ranking ranking = new Ranking();
         // Deserializzazione, scrivere che se esiste il file allora si carica la memory
         fileName = "backup.json";
-        absolutePath = Utils.setFileSeparator(fileName);
+        absolutePath = configuration.setFileSeparator(fileName);
         file = new File(absolutePath);
         if (file.exists()) {
             //  se esiste il file allora si carica la memory
@@ -68,6 +78,7 @@ public class ServerMain {
                 // converto i dati
                 Type type = new TypeToken<ConcurrentHashMap<String, User>>() {}.getType();
                 ConcurrentHashMap<String, User> uploadUser = gson.fromJson(jsonInput.toString(), type);
+
                 memory.setUsers(uploadUser);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -85,7 +96,7 @@ public class ServerMain {
 
         //  Parsing della configurazione
         fileName = "config.json";
-        absolutePath = Utils.setFileSeparator(fileName);
+        absolutePath = configuration.setFileSeparator(fileName);
         file = new File(absolutePath);
         configurationGson = gson.toJson(configuration);
         try {
@@ -118,6 +129,15 @@ public class ServerMain {
             //  pubblicazione dello stub nel registry
             registry.rebind("REGISTER-SERVICE", stub);
             System.out.println("Server ready");
+
+            //  RMICallback
+            RankingServerImpl rankingServer = new RankingServerImpl();
+            RankingServerInterface rankingStub = (RankingServerInterface) UnicastRemoteObject.exportObject(rankingServer, 0);
+            try {
+                registry.bind("RANKING-SERVICE", rankingStub);
+            } catch (AlreadyBoundException e) {
+                throw new RuntimeException(e);
+            }
         } catch (RemoteException e) {
             System.out.println("Tipologia errore: " + e);
         }
@@ -178,7 +198,7 @@ public class ServerMain {
                             System.err.println("Connessione chiusa");
                         } else {
                             System.out.println("Messaggio ricevuto: " + stringa);
-                            threadPoolExecutor.execute(new Worker(stringa, memory, client, gson));
+                            threadPoolExecutor.execute(new Worker(stringa, memory, client, gson, configuration));
                         }
                     }
                 } catch (IOException e) {

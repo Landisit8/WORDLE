@@ -1,7 +1,11 @@
+package server;
+
+import server.user.User;
+
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Classe Memory -> Memorizzare tutti gli utenti, gestione delle statistiche, classifica ordinata, traduzione italiana
+// Classe server.Memory -> Memorizzare tutti gli utenti, gestione delle statistiche, classifica ordinata, traduzione italiana
 public class Memory {
     //  gestione degli utenti
     private ConcurrentHashMap<String, User> users;
@@ -65,7 +69,7 @@ public class Memory {
                     return 1; //  Utente già online
                 }
             } else {
-                return 2; //  Password errata
+                return 2; //  server.user.Password errata
             }
         } else {
             return 3; //  Utente non registrato
@@ -111,4 +115,10 @@ public class Memory {
     this.users = users;
 }
 
+    //  METODO CHE SETTA IL FLAG DEGLI UTENTI
+    public void setFlag() {
+        this.users.forEach((key, value) -> {
+                value.setFlag(false);
+        });
+    }
 }
