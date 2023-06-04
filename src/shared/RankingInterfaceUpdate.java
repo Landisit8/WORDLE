@@ -2,9 +2,9 @@ package shared;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
+import java.util.Vector;
 
 public interface RankingInterfaceUpdate extends Remote {
-    public void updateRanking(List<String> list) throws RemoteException;
+    void updateRanking(Vector<String> list) throws RemoteException;
 
 }

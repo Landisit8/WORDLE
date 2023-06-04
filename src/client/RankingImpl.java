@@ -5,6 +5,7 @@ import shared.RankingInterfaceUpdate;
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
 import java.util.List;
+import java.util.Vector;
 
 public class RankingImpl extends RemoteObject implements RankingInterfaceUpdate {
 
@@ -16,7 +17,7 @@ public class RankingImpl extends RemoteObject implements RankingInterfaceUpdate 
     }
 
     @Override
-    public void updateRanking(List<String> list) throws RemoteException {
+    public void updateRanking(Vector<String> list) throws RemoteException {
         winners = list;
         for (String s : winners) {
             System.out.println(s);

@@ -3,7 +3,7 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import server.user.Ranking;
+import server.user.RankingGenerator;
 import server.user.User;
 import shared.RankingServerInterface;
 import shared.Utils;
@@ -57,8 +57,10 @@ public class ServerMain {
         //  variabili per la configurazione
         String fileName;
         String absolutePath;
+        //  RMICallback
+        RankingServerImpl rankingServer = null;
         //  creazione della classifica
-        Ranking ranking = new Ranking();
+        RankingGenerator rankingGenerator = null;
         // Deserializzazione, scrivere che se esiste il file allora si carica la memory
         fileName = "backup.json";
         absolutePath = configuration.setFileSeparator(fileName);
@@ -131,7 +133,7 @@ public class ServerMain {
             System.out.println("Server ready");
 
             //  RMICallback
-            RankingServerImpl rankingServer = new RankingServerImpl();
+            rankingServer = new RankingServerImpl();
             RankingServerInterface rankingStub = (RankingServerInterface) UnicastRemoteObject.exportObject(rankingServer, 0);
             try {
                 registry.bind("RANKING-SERVICE", rankingStub);
@@ -198,7 +200,7 @@ public class ServerMain {
                             System.err.println("Connessione chiusa");
                         } else {
                             System.out.println("Messaggio ricevuto: " + stringa);
-                            threadPoolExecutor.execute(new Worker(stringa, memory, client, gson, configuration));
+                            threadPoolExecutor.execute(new Worker(stringa, memory, client, gson, configuration, rankingGenerator, rankingServer));
                         }
                     }
                 } catch (IOException e) {

@@ -9,7 +9,6 @@ public class User {
     private int numWin;
     private int numGame;
     private float avgAttempt;
-    private int percentWin;
     private int streakWin;
     private int maxStreakWin;
     private float valueClassified;
@@ -22,7 +21,6 @@ public class User {
         this.numWin = 0;
         this.numGame = 0;
         this.avgAttempt = 0;
-        this.percentWin = 0;
         this.streakWin = 0;
         this.maxStreakWin = 0;
         this.valueClassified = 0;
@@ -54,10 +52,6 @@ public class User {
         return avgAttempt;
     }
 
-    public int getPercentWin() {
-        return percentWin;
-    }
-
     public int getStreakWin() {
         return streakWin;
     }
@@ -81,10 +75,6 @@ public class User {
 
     public void setAvgAttempt(float avgAttempt) {
         this.avgAttempt = avgAttempt;
-    }
-
-    public void setPercentWin(int percentWin) {
-        this.percentWin = percentWin;
     }
 
     public void setValueClassified(float valueClassified) {
@@ -114,4 +104,5 @@ public class User {
     public void incrementNumGame() {
         this.numGame++;
     }
+
 }

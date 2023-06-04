@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import server.user.RankingGenerator;
 import shared.Utils;
 
 import java.io.BufferedReader;
@@ -19,17 +20,21 @@ public class Worker implements Runnable{
     private SocketChannel client;
     private Gson gson;
     private Configuration configuration;
+    private RankingGenerator rankingGenerator;
+    private RankingServerImpl rankingServer;
     private static int attempts = 0;   //  Tentativi effettuati
     private static final int MAX_ATTEMPTS = 3;   //  Numero massimo di tentativi
     private ArrayList<String> dictionary;
 
-    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson, Configuration configuration){
+    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson, Configuration configuration, RankingGenerator rankingGenerator, RankingServerImpl rankingServer){
         this.mStringa = stringa;
         this.memory = memory;
         this.client = client;
         this.gson = gson;
         this.configuration = configuration;
-    }
+        this.rankingGenerator = rankingGenerator;
+        this.rankingServer = rankingServer;
+        }
 
     @Override
     public void run() {
@@ -206,11 +211,6 @@ public class Worker implements Runnable{
                                     .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
                                     / memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
 
-                    //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
-                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getUsers()
-                            .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getUsers()
-                            .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
-
                     //  Calcolo del punteggio, numero di vittorie * media dei tentativi
                     memory.getUsers().get(memory.getUserSocketChannel().get(client))
                             .setValueClassified(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
@@ -259,16 +259,15 @@ public class Worker implements Runnable{
                                     .get(memory.getUserSocketChannel().get(client)).getAvgAttempt())
                                     / memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame());
 
-                    //  Calcolo della percentuale di vittorie, numero di vittorie / numero di partite * 100
-                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setPercentWin((memory.getUsers()
-                            .get(memory.getUserSocketChannel().get(client)).getNumWin()) / memory.getUsers()
-                            .get(memory.getUserSocketChannel().get(client)).getNumGame() * 100);
-
                     //  Calcolo del punteggio, numero di vittorie * media dei tentativi
                     memory.getUsers().get(memory.getUserSocketChannel().get(client))
                             .setValueClassified(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
                                     * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
 
+                    //  gestione della classifica
+                    rankingGenerator = new RankingGenerator(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername(),
+                            memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified());
+                    rankingServer.updateRanking(rankingGenerator.generateRanking());
 
                     //  traduzione della parola
                     String traslation = getItalianTranslation(word);
@@ -378,7 +377,6 @@ public class Worker implements Runnable{
                     + "; Media tentativi: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt()
                     + "; Striscia vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getStreakWin()
                     + "; Massimo striscia vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getMaxStreakWin()
-                    + "; Vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getPercentWin() + "%"
                     + "; Punteggio: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified(), client);
         } catch (IOException e) {
             throw new RuntimeException(e);
