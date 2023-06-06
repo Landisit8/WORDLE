@@ -30,4 +30,6 @@ SHOW
 MESSAGGI
 100 -> Messaggio, errore di connessione
 101 -> Messaggio, prima playwordle
+102 -> Messaggio, classifica vuota
+103 -> Messaggio, E' stata cambiata la parola da indovinare
 

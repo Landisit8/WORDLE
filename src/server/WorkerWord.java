@@ -5,6 +5,9 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.Random;
 
 public class WorkerWord implements Runnable{
@@ -46,6 +49,25 @@ public class WorkerWord implements Runnable{
                 try {
                     wordGuess = extractWord(memoryFile);
                     memory.setFlag();
+                    try(DatagramSocket socket = new DatagramSocket()){
+                        InetAddress group = InetAddress.getByName("226.226.226.226");
+                        String message = "Codice 103, Una nuova parola è stata generata ";
+
+                        byte[] buffer = message.getBytes();
+
+                        //  Dalla lunghezza del messaggio lo trasformo in una stringa e infine in un array di byte
+                        String lengthMessage = String.valueOf(message.length());
+                        byte[] size = lengthMessage.getBytes();
+
+                        DatagramPacket sizePacket = new DatagramPacket(size, size.length, group, 5001);
+                        socket.send(sizePacket);
+
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, 5001);
+                        socket.send(packet);
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

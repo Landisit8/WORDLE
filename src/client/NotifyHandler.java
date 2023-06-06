@@ -6,13 +6,17 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NotifyHandler implements Runnable{
     private Vector<String> games;
-    MulticastSocket multicastSocket;
+    private MulticastSocket multicastSocket;
+    private AtomicBoolean print;
 
-    public NotifyHandler(int UDPPort, String multicastAddress, Vector<String> games) {
+    public NotifyHandler(int UDPPort, String multicastAddress, Vector<String> games, AtomicBoolean print) {
         this.games = games;
+        this.print = print;
+
         InetAddress group;
         try {
             group = InetAddress.getByName(multicastAddress);
@@ -42,7 +46,12 @@ public class NotifyHandler implements Runnable{
                 DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
                 multicastSocket.receive(datagramPacket);    // ricevo il messaggio
                 String message = new String(datagramPacket.getData(), datagramPacketLenght.getOffset(), datagramPacket.getLength());
-                games.add(message);
+                if (message.contains("Codice 103")) {
+                    while(!print.get()) {}
+                    System.out.println(message);
+                } else {
+                    games.add(message);
+                }
 
                 if (games.size() >= 100) {
                     games.remove(0);

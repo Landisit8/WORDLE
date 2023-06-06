@@ -7,4 +7,5 @@ import java.util.Vector;
 public interface RankingInterfaceUpdate extends Remote {
     void updateRanking(Vector<String> list) throws RemoteException;
 
+    Vector<String> getWinners() throws RemoteException;
 }

@@ -195,7 +195,11 @@ public class ServerMain {
                         } catch (BufferUnderflowException e) {
                            continue;
                         }
-                        if (stringa.isEmpty()) {
+                        //  Se ricevo una stringa vuota significa che il client si è disconnesso
+                        if (stringa.equals("")) {
+                            if (memory.isOnline(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername()) ){
+                                memory.logout(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername());
+                            }
                             key.cancel();
                             System.err.println("Connessione chiusa");
                         } else {

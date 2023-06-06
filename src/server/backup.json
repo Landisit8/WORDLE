@@ -4,6 +4,34 @@
     "password": {
       "password": "mxyhqwxv"
     },
+    "lastWord": "ceratohyal",
+    "numWin": 1,
+    "numGame": 1,
+    "avgAttempt": 1.0,
+    "streakWin": 1,
+    "maxStreakWin": 1,
+    "valueClassified": 1.0,
+    "flag": false
+  },
+  "leo": {
+    "username": "leo",
+    "password": {
+      "password": "ohr"
+    },
+    "lastWord": "ceratohyal",
+    "numWin": 3,
+    "numGame": 3,
+    "avgAttempt": 0.6666667,
+    "streakWin": 3,
+    "maxStreakWin": 3,
+    "valueClassified": 2.0,
+    "flag": false
+  },
+  "amelia": {
+    "username": "amelia",
+    "password": {
+      "password": "udwwl"
+    },
     "lastWord": "default",
     "numWin": 0,
     "numGame": 0,
@@ -13,32 +41,32 @@
     "valueClassified": 0.0,
     "flag": false
   },
-  "leo": {
-    "username": "leo",
+  "Pippo": {
+    "username": "Pippo",
     "password": {
-      "password": "ohr"
+      "password": "fdolvvl"
     },
-    "lastWord": "rinderpest",
-    "numWin": 2,
-    "numGame": 2,
-    "avgAttempt": 1.0,
-    "streakWin": 2,
-    "maxStreakWin": 2,
+    "lastWord": "marylander",
+    "numWin": 1,
+    "numGame": 1,
+    "avgAttempt": 2.0,
+    "streakWin": 1,
+    "maxStreakWin": 1,
     "valueClassified": 2.0,
-    "flag": true
+    "flag": false
   },
   "fede": {
     "username": "fede",
     "password": {
       "password": ";;"
     },
-    "lastWord": "believable",
-    "numWin": 3,
-    "numGame": 3,
-    "avgAttempt": 0.6666667,
-    "streakWin": 3,
-    "maxStreakWin": 3,
-    "valueClassified": 2.0,
+    "lastWord": "creativity",
+    "numWin": 12,
+    "numGame": 12,
+    "avgAttempt": 0.09176319,
+    "streakWin": 12,
+    "maxStreakWin": 12,
+    "valueClassified": 1.1011583,
     "flag": false
   }
 }

@@ -21,6 +21,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientMain {
     public static void main(String[] args) {
@@ -63,11 +64,18 @@ public class ClientMain {
         RegisterInterface serverObject;
         Remote remoteObject;
         //  RMICALLBACK
-        RankingInterfaceUpdate rankingInterfaceUpdate;
+        RankingInterfaceUpdate rankingInterfaceUpdate = null;
         RankingInterfaceUpdate stub = null;
         RankingServerInterface rankingServerInterface = null;
         //  variabili utili
         Vector<String> winners = new Vector<>();
+        AtomicBoolean print = new AtomicBoolean(true);
+        Registry r;
+        try {
+            r = LocateRegistry.getRegistry(configuration.getRegistryPort());
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
 
         Scanner scanner = new Scanner(System.in);
         String stringa;
@@ -79,6 +87,7 @@ public class ClientMain {
             int menu;
             do{
                 do {
+                    print.set(false);
                     while (true) {
                         System.out.println("Benvenuto nel menu di login");
                         System.out.println("0. Registrazione");
@@ -102,14 +111,8 @@ public class ClientMain {
                             System.out.println("Inserisci password");
                             String password = scanner.next();
                             try {
-                                Registry r = LocateRegistry.getRegistry(configuration.getRegistryPort());
                                 remoteObject = r.lookup("REGISTER-SERVICE");
-
                                 serverObject = (RegisterInterface) remoteObject;
-                                rankingServerInterface = (RankingServerInterface) r.lookup("RANKING-SERVICE");
-                                rankingInterfaceUpdate = new RankingImpl(winners);
-                                stub = (RankingInterfaceUpdate) UnicastRemoteObject.exportObject(rankingInterfaceUpdate, 0);
-                                rankingServerInterface.registerForCallback(stub);
                                 switch (serverObject.register(username, password)){
                                     case 0:
                                         System.out.println("Codice 001, Registrazione avvenuta con successo");
@@ -144,9 +147,15 @@ public class ClientMain {
                                     System.out.println(stringa);
                                 } else {
                                     System.out.println(stringa + " Benvenuto");
-                                    notifyHandler = new NotifyHandler(5001, "226.226.226.226", games);
+                                    notifyHandler = new NotifyHandler(5001, "226.226.226.226",games,print);
                                     thread = new Thread(notifyHandler);
                                     thread.start();
+                                    rankingServerInterface = (RankingServerInterface) r.lookup("RANKING-SERVICE");
+                                    rankingInterfaceUpdate = new RankingImpl(winners);
+                                    stub = (RankingInterfaceUpdate) UnicastRemoteObject.exportObject(rankingInterfaceUpdate, 0);
+                                    if (rankingServerInterface != null) {
+                                        rankingServerInterface.registerForCallback(stub);
+                                    }
                                     login = true;
                                 }
                             } catch (Exception e) {
@@ -175,6 +184,7 @@ public class ClientMain {
                             System.out.println("4. show");
                             System.out.println("5: Logout");
 
+                            print.set(false);
                             //  controllo che l'input sia un intero
                             if (scanner.hasNextInt()) {
                                 menu = scanner.nextInt();
@@ -185,6 +195,7 @@ public class ClientMain {
                             }
                         }
 
+                        print.set(true);
                         switch (menu) {
                             case 0:
                                 //  Playwordle
@@ -200,6 +211,7 @@ public class ClientMain {
                             case 1:
                                 //  SendWord
                                 try {
+                                    print.set(false);
                                     System.out.println("Inserisci parola");
                                     String parola = scanner.next();
                                     Utils.write("sendWord " + parola, client);
@@ -209,6 +221,7 @@ public class ClientMain {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+                                print.set(true);
                                 break;
                             case 2:
                                 // sendMeStatistics
@@ -233,13 +246,14 @@ public class ClientMain {
                                 //  showMeSharing
                                 if (games.isEmpty()){
                                     System.out.println("Codice 071, Nessun giocatore ha condiviso la partita");
-                                    break;
                                 } else {
                                     System.out.println("Codice 070, Giocatori che hanno condiviso la partita:");
                                     for (String game : games)   System.out.println(game);
-                                    for (int i=0; i < winners.size(); i++) {
-                                        System.out.println(i + 1 + "° classificato: " + winners.get(i));
-                                    }
+                                }
+
+                                winners = rankingInterfaceUpdate.getWinners();
+                                for (int i=0; i < winners.size(); i++) {
+                                    System.out.println(i + 1 + "° classificato: " + winners.get(i));
                                 }
                                 break;
                             case 5:
@@ -269,6 +283,7 @@ public class ClientMain {
                                 System.out.println("Scelta non valida");
                                 break;
                         }
+                        print.set(false);
                     }while(!logout);
                 }
             } while(!exit);

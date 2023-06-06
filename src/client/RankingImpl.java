@@ -4,14 +4,13 @@ import shared.RankingInterfaceUpdate;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
-import java.util.List;
 import java.util.Vector;
 
 public class RankingImpl extends RemoteObject implements RankingInterfaceUpdate {
 
-    private List<String> winners;
+    private Vector<String> winners;
 
-    public RankingImpl(List<String> winners) throws RemoteException {
+    public RankingImpl(Vector<String> winners) throws RemoteException {
         super();
         this.winners = winners;
     }
@@ -19,8 +18,9 @@ public class RankingImpl extends RemoteObject implements RankingInterfaceUpdate 
     @Override
     public void updateRanking(Vector<String> list) throws RemoteException {
         winners = list;
-        for (String s : winners) {
-            System.out.println(s);
-        }
+    }
+
+    public Vector<String> getWinners() {
+        return winners;
     }
 }

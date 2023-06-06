@@ -6,7 +6,7 @@ public class Configuration {
     private final int RegistryPort;
 
     public Configuration() {
-        this.timeoutWord = 5;       // minuti
+        this.timeoutWord = 1;       // minuti
         this.defaultPort = 5000;
         this.RegistryPort = 1717;
     }
