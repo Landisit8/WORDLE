@@ -1,4 +1,4 @@
-package shared;
+package shared.ranking;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

@@ -1,7 +1,10 @@
-package server;
+package server.entities;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import server.Configuration;
+import server.Memory;
+import server.rmi.RankingServerImpl;
 import server.user.RankingGenerator;
 import shared.Utils;
 
@@ -38,26 +41,34 @@ public class Worker implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("server.Worker: " + mStringa);
+        System.out.println("server.entities.Worker: " + mStringa);
         String[] options = mStringa.split(" ");
         switch (options[0]) {
-                case "login":
-                    handleLogin(options[1], options[2]);
-                    break;
-                case "playWordle":
-                    playWordle();
-                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setFlag(true);
-                    break;
-                case "sendWord":
-                    if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getFlag())
+            case "login":
+                handleLogin(options[1], options[2]);
+                break;
+            case "playWordle":
+                playWordle();
+                memory.getUsers().get(memory.getUserSocketChannel().get(client)).setFlag(true);
+                break;
+            case "sendWord":
+                if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord().equals(WorkerWord.wordGuess)) {
+                    try {
+                        Utils.write("Codice 031, Hai già giocato questa parola", client);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getFlag()) {
                         handleSendWord(options[1]);
-                    else {
+                    } else{
                         try {
                             Utils.write("Codice 101, Esegui prima playwordle", client);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
+                }
                     break;
                 case "sendMeStatistics":
                     handleStats();
@@ -215,6 +226,11 @@ public class Worker implements Runnable{
                     memory.getUsers().get(memory.getUserSocketChannel().get(client))
                             .setValueClassified(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
                                     * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
+
+                    //  gestione della classifica
+                    rankingGenerator = new RankingGenerator(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername(),
+                            memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified());
+                    rankingServer.updateRanking(rankingGenerator.generateRanking());
 
                     //  traduzione della parola
                     String traslation = getItalianTranslation(WorkerWord.wordGuess);

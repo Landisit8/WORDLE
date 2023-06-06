@@ -1,9 +1,10 @@
 package client;
 
+import client.ranking.RankingImpl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import shared.RankingInterfaceUpdate;
-import shared.RankingServerInterface;
+import shared.ranking.RankingInterfaceUpdate;
+import shared.ranking.RankingServerInterface;
 import shared.Utils;
 import shared.rmi.RegisterInterface;
 
@@ -25,10 +26,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientMain {
     public static void main(String[] args) {
+        //  variabili configurazione
         Configuration configuration = new Configuration();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String configurationGson = gson.toJson(configuration);
-
         String fileName = "config.json";
         String absolutePath = configuration.setFileSeparator(fileName);
         File file = new File(absolutePath);
@@ -51,15 +52,11 @@ public class ClientMain {
         //System.out.println("Deserializzazione" + configuration);
         SocketChannel client = null;
         SocketAddress address = new InetSocketAddress(configuration.getHostname(), configuration.getDefaultPort());
+
         //  variabili thread
         NotifyHandler notifyHandler;
         Thread thread = null;
-        //  variabili utili
-        Vector<String> games = new Vector<>();
-        //  variabili per i menu
-        boolean exit = false;
-        boolean login = false;
-        boolean logout = false;
+
         //  RMI Client
         RegisterInterface serverObject;
         Remote remoteObject;
@@ -67,6 +64,10 @@ public class ClientMain {
         RankingInterfaceUpdate rankingInterfaceUpdate = null;
         RankingInterfaceUpdate stub = null;
         RankingServerInterface rankingServerInterface = null;
+
+        // variabili per lo share
+        Vector<String> games = new Vector<>();
+
         //  variabili utili
         Vector<String> winners = new Vector<>();
         AtomicBoolean print = new AtomicBoolean(true);
@@ -77,24 +78,28 @@ public class ClientMain {
             throw new RuntimeException(e);
         }
 
+        //  variabili per i menu
+        boolean exit = false;
+        boolean login = false;
+        boolean logout = false;
+        int menu;
         Scanner scanner = new Scanner(System.in);
         String stringa;
 
         try {
             client = SocketChannel.open(address);
-
         //  menu
-            int menu;
             do{
                 do {
                     print.set(false);
+
+                    //  controllo che l'ingresso sia un intero
                     while (true) {
                         System.out.println("Benvenuto nel menu di login");
                         System.out.println("0. Registrazione");
                         System.out.println("1. Login");
                         System.out.println("2. Esci");
 
-                        //  controllo che l'input sia un intero
                         if (scanner.hasNextInt()) {
                             menu = scanner.nextInt();
                             break;
@@ -185,7 +190,7 @@ public class ClientMain {
                             System.out.println("5: Logout");
 
                             print.set(false);
-                            //  controllo che l'input sia un intero
+                            //  controllo che l'ingresso sia un intero
                             if (scanner.hasNextInt()) {
                                 menu = scanner.nextInt();
                                 break;
@@ -278,6 +283,11 @@ public class ClientMain {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+                                break;
+                            case 601487:
+                                //  easter egg
+                                System.out.println("Easter egg attivato");
+                                System.out.printf("Questo è il progetto di reti di %-5s %-5s%n", "Federico", "Landini");
                                 break;
                             default:
                                 System.out.println("Scelta non valida");

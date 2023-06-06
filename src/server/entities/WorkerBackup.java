@@ -1,6 +1,8 @@
-package server;
+package server.entities;
 
 import com.google.gson.Gson;
+import server.Configuration;
+import server.Memory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -32,7 +34,8 @@ public class WorkerBackup implements Runnable {
         while (true) {
             long endTime = System.currentTimeMillis();
             long timeElapsed = endTime - checkTime;
-            if (timeElapsed >= TimeUnit.SECONDS.toMillis(15)) {   //  Parsing del backup
+
+            if (timeElapsed >= TimeUnit.MINUTES.toMillis(2)) {   //  Parsing del backup
                 fileName = "backup.json";
                 absolutePath = configuration.setFileSeparator(fileName);
                 memoryFile = new File(absolutePath);

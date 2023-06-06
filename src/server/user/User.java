@@ -4,7 +4,7 @@ public class User {
     private final String username;
     private final Password password;
 
-    //Variabile per le statistiche
+    //Variabile per le statistiche dividere le statistiche da stampare e no
     private String lastWord;
     private int numWin;
     private int numGame;

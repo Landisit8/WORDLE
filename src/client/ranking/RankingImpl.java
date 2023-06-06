@@ -1,6 +1,6 @@
-package client;
+package client.ranking;
 
-import shared.RankingInterfaceUpdate;
+import shared.ranking.RankingInterfaceUpdate;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;

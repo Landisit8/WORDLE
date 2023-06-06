@@ -8,16 +8,19 @@
       <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/ClientMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ClientMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/NotifyHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/NotifyHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/RankingImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/RankingImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/RankingImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ranking/RankingImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/Configuration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/RankingServerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/rmi/RankingServerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ServerMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/WorkerWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/WorkerWord.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/Worker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/WorkerBackup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerBackup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/WorkerWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerWord.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/backup.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/user/RankingGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/user/RankingGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/CodeError.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/CodeError.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/RankingInterfaceUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/RankingInterfaceUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/user/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/user/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/RankingInterfaceUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingInterfaceUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/RankingServerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingServerInterface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

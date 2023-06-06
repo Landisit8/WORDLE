@@ -13,19 +13,47 @@
     "valueClassified": 1.0,
     "flag": false
   },
+  "moki": {
+    "username": "moki",
+    "password": {
+      "password": "pdpw"
+    },
+    "lastWord": "acantharia",
+    "numWin": 7,
+    "numGame": 8,
+    "avgAttempt": 0.1467758,
+    "streakWin": 7,
+    "maxStreakWin": 7,
+    "valueClassified": 1.0274305,
+    "flag": false
+  },
+  "Moki": {
+    "username": "Moki",
+    "password": {
+      "password": "pdpw"
+    },
+    "lastWord": "sceloporus",
+    "numWin": 1,
+    "numGame": 1,
+    "avgAttempt": 1.0,
+    "streakWin": 1,
+    "maxStreakWin": 1,
+    "valueClassified": 1.0,
+    "flag": false
+  },
   "leo": {
     "username": "leo",
     "password": {
       "password": "ohr"
     },
-    "lastWord": "ceratohyal",
-    "numWin": 3,
-    "numGame": 3,
-    "avgAttempt": 0.6666667,
-    "streakWin": 3,
-    "maxStreakWin": 3,
-    "valueClassified": 2.0,
-    "flag": false
+    "lastWord": "mansionary",
+    "numWin": 4,
+    "numGame": 4,
+    "avgAttempt": 0.4166667,
+    "streakWin": 4,
+    "maxStreakWin": 4,
+    "valueClassified": 1.6666667,
+    "flag": true
   },
   "amelia": {
     "username": "amelia",
@@ -60,13 +88,13 @@
     "password": {
       "password": ";;"
     },
-    "lastWord": "creativity",
-    "numWin": 12,
-    "numGame": 12,
-    "avgAttempt": 0.09176319,
-    "streakWin": 12,
-    "maxStreakWin": 12,
-    "valueClassified": 1.1011583,
-    "flag": false
+    "lastWord": "mansionary",
+    "numWin": 16,
+    "numGame": 16,
+    "avgAttempt": 0.06698928,
+    "streakWin": 16,
+    "maxStreakWin": 16,
+    "valueClassified": 1.0718285,
+    "flag": true
   }
 }

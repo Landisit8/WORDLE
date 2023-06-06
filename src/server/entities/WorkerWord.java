@@ -1,6 +1,8 @@
-package server;
+package server.entities;
 
 import com.google.gson.Gson;
+import server.Configuration;
+import server.Memory;
 
 import java.io.File;
 import java.io.IOException;
