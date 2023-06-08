@@ -281,9 +281,7 @@ public class ClientMain {
                                     // deserializzo la stringa
                                     Type type = new TypeToken<Vector<String>>(){}.getType();
                                     Vector<String> ranking = null;
-                                    synchronized (ranking) {
-                                        ranking = gson.fromJson(stringa, type);
-                                    }
+                                    ranking = gson.fromJson(stringa, type);
                                     if (ranking == null){
                                         System.out.println("Codice 061, non è stata giocata nessuna partita");
                                         break;
