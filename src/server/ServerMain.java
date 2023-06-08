@@ -12,7 +12,6 @@ import server.user.User;
 import shared.ranking.RankingServerInterface;
 import shared.Utils;
 import shared.rmi.RegisterInterface;
-import shared.rmi.RegisterServiceImpl;
 
 import java.io.*;
 import java.lang.reflect.Type;
