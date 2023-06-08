@@ -26,7 +26,7 @@ public class NotifyHandler implements Runnable{
         try {
             this.multicastSocket = new MulticastSocket(UDPPort);
             multicastSocket.joinGroup(group);
-            multicastSocket.setReuseAddress(true);
+            //multicastSocket.setReuseAddress(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
