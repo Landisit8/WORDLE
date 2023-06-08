@@ -7,20 +7,23 @@ import java.rmi.server.RemoteObject;
 import java.util.Vector;
 
 public class RankingImpl extends RemoteObject implements RankingInterfaceUpdate {
+    private Vector<String> notifyMessages;
 
-    private Vector<String> winners;
-
-    public RankingImpl(Vector<String> winners) throws RemoteException {
+    public RankingImpl(Vector<String> notifyMessages) throws RemoteException {
         super();
-        this.winners = winners;
+        this.notifyMessages = notifyMessages;
     }
 
     @Override
-    public void updateRanking(Vector<String> list) throws RemoteException {
-        winners = list;
+    public void updateRanking(String notify) throws RemoteException {
+        synchronized (notify){
+            notifyMessages.add(notify);
+        }
     }
 
-    public Vector<String> getWinners() {
-        return winners;
+    @Override
+    public Vector<String> getNotify() throws RemoteException {
+        return notifyMessages;
     }
+
 }

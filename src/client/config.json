@@ -1,5 +1,7 @@
 {
   "defaultPort": 5000,
   "registryPort": 1717,
-  "hostname": "localhost"
+  "hostname": "localhost",
+  "UDP_PORT": 5001,
+  "multicastAddress": "226.226.226.226"
 }

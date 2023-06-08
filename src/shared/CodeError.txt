@@ -32,4 +32,6 @@ MESSAGGI
 101 -> Messaggio, prima playwordle
 102 -> Messaggio, classifica vuota
 103 -> Messaggio, E' stata cambiata la parola da indovinare
+104 -> Messaggio, Easter egg attivato
+105 -> Messaggio, Le prime 3 posizioni della classifica sono state modificate
 

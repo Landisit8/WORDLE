@@ -19,6 +19,7 @@ public class WorkerWord implements Runnable{
 
     private boolean stop = false;
     static volatile String wordGuess;
+    static long numberWordGuess = 0;
 
     public WorkerWord(Memory memory, Configuration configuration, Gson gson) {
             this.memory = memory;
@@ -30,8 +31,7 @@ public class WorkerWord implements Runnable{
     public void run() {
         //  controllo delle metodi che devono essere eseguiti ogni tot tempo
         //  variabili
-        long startTime = System.currentTimeMillis();
-        long checkTime = startTime;
+        long checkTime = System.currentTimeMillis();
         //  file separator
         String fileName;
         String absolutePath;
@@ -42,7 +42,7 @@ public class WorkerWord implements Runnable{
             long endTime = System.currentTimeMillis();
             long timeElapsed = endTime - checkTime;
 
-            if (wordGuess == null || timeElapsed >= (configuration.getTimeoutWord()* 60000)) {   //  Parsing del dizionario
+            if (wordGuess == null || timeElapsed >= (configuration.getTimeExchange())* 60000) {   //  Parsing del dizionario
                 //  Parsing del dizionario
                 fileName = "words.txt";
                 absolutePath = configuration.setFileSeparator(fileName);
@@ -51,8 +51,10 @@ public class WorkerWord implements Runnable{
                 try {
                     wordGuess = extractWord(memoryFile);
                     memory.setFlag();
+                    numberWordGuess++;
+
                     try(DatagramSocket socket = new DatagramSocket()){
-                        InetAddress group = InetAddress.getByName("226.226.226.226");
+                        InetAddress group = InetAddress.getByName(configuration.getMulticastAddress());
                         String message = "Codice 103, Una nuova parola è stata generata ";
 
                         byte[] buffer = message.getBytes();
@@ -61,10 +63,10 @@ public class WorkerWord implements Runnable{
                         String lengthMessage = String.valueOf(message.length());
                         byte[] size = lengthMessage.getBytes();
 
-                        DatagramPacket sizePacket = new DatagramPacket(size, size.length, group, 5001);
+                        DatagramPacket sizePacket = new DatagramPacket(size, size.length, group, configuration.getUDP_PORT());
                         socket.send(sizePacket);
 
-                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, 5001);
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, configuration.getUDP_PORT());
                         socket.send(packet);
 
                     } catch (IOException e) {

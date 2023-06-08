@@ -28,37 +28,37 @@ public class Memory {
     }
 
     //  Metodo per inserire un utente
-    public void insertUser(String username, String password) {
+    public synchronized void insertUser(String username, String password) {
         this.users.put(username, new User(username, password));
     }
 
     //  Metodo per inserire un utente online
-    public void insertOnlineUser(String username, String password) {
+    public synchronized void insertOnlineUser(String username, String password) {
         this.onlineUsers.put(username, new User(username, password));
     }
 
     //  Metodo per inserire un userSocketChannel
-    public void insertUserSocketChannel(String username, SocketChannel socketChannel) {
+    public synchronized void insertUserSocketChannel(String username, SocketChannel socketChannel) {
         this.UserSocketChannel.putIfAbsent(socketChannel, username);
     }
 
     //  Metodo per rimuovere un utente online
-    public void removeOnlineUser(String username) {
+    public synchronized void removeOnlineUser(String username) {
         this.onlineUsers.remove(username);
     }
 
     //  Metodo per controllare se un utente è online
-    public boolean isOnline(String username) {
+    public synchronized boolean isOnline(String username) {
         return this.onlineUsers.containsKey(username);
     }
 
     //  Metodo per controllare se un utente è registrato
-    public boolean isRegistered(String username) {
+    public synchronized boolean isRegistered(String username) {
         return this.users.containsKey(username);
     }
 
     //  Metodo di login,
-    public int login(String username, String password) {
+    public synchronized int login(String username, String password) {
         if (this.isRegistered(username)){
             if (this.users.get(username).getPassword().equals(password)){
                 if (!this.isOnline(username)){
@@ -77,7 +77,7 @@ public class Memory {
     }
 
     //  Metodo di logout
-    public int logout(String username) {
+    public synchronized int logout(String username) {
         System.out.println("-1");
         if (this.isRegistered(username)) {
             if (this.isOnline(username)) {
@@ -111,14 +111,12 @@ public class Memory {
 
     //  METODI SET
     //  metodo che setta la lista degli utenti, per il caricamento della memoria
-    public void setUsers(ConcurrentHashMap<String, User> users) {
+    public synchronized void setUsers(ConcurrentHashMap<String, User> users) {
     this.users = users;
 }
 
     //  METODO CHE SETTA IL FLAG DEGLI UTENTI
-    public void setFlag() {
-        this.users.forEach((key, value) -> {
-                value.setFlag(false);
-        });
+    public synchronized void setFlag() {
+        this.users.forEach((key, value) -> value.setFlag(false));
     }
 }

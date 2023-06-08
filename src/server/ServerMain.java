@@ -30,6 +30,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -64,7 +65,8 @@ public class ServerMain {
         //  RMICallback
         RankingServerImpl rankingServer = null;
         //  creazione della classifica
-        RankingGenerator rankingGenerator = null;
+        RankingGenerator rankingGenerator = new RankingGenerator();
+
         // Deserializzazione, scrivere che se esiste il file allora si carica la memory
         fileName = "backup.json";
         absolutePath = configuration.setFileSeparator(fileName);
@@ -85,14 +87,68 @@ public class ServerMain {
                 Type type = new TypeToken<ConcurrentHashMap<String, User>>() {}.getType();
                 ConcurrentHashMap<String, User> uploadUser = gson.fromJson(jsonInput.toString(), type);
 
-                memory.setUsers(uploadUser);
+                synchronized (memory){
+                    memory.setUsers(uploadUser);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // Deserializzazione, della classificaScore
+        fileName = "rankingScore.json";
+        absolutePath = configuration.setFileSeparator(fileName);
+        file = new File(absolutePath);
+        if (file.exists()) {
+            //  se esiste il file allora si carica la memory
+            System.out.println("Caricamento della classifica Scores...");
+
+            StringBuilder jsonInput = new StringBuilder();
+            String line;
+            //  leggo i dati salvati
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                while ((line = reader.readLine()) != null) {
+                    jsonInput.append(line);
+                    jsonInput.append(System.lineSeparator());
+                }
+                // converto i dati
+                Type type = new TypeToken<Vector<Float>>() {}.getType();
+                Vector<Float> uploadScore = gson.fromJson(jsonInput.toString(), type);
+                synchronized (rankingGenerator){
+                    rankingGenerator.setScores(uploadScore);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // Deserializzazione, della classificaUsers
+        fileName = "rankingUsers.json";
+        absolutePath = configuration.setFileSeparator(fileName);
+        file = new File(absolutePath);
+        if (file.exists()) {
+            //  se esiste il file allora si carica la memory
+            System.out.println("Caricamento della classifica Users...");
+
+            StringBuilder jsonInput = new StringBuilder();
+            String line;
+            //  leggo i dati salvati
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                while ((line = reader.readLine()) != null) {
+                    jsonInput.append(line);
+                    jsonInput.append(System.lineSeparator());
+                }
+                // converto i dati
+                Type type = new TypeToken<Vector<String>>() {}.getType();
+                Vector<String> uploadUsers = gson.fromJson(jsonInput.toString(), type);
+                synchronized (rankingGenerator){
+                    rankingGenerator.setUsernames(uploadUsers);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
         // variabili thread
-        WorkerBackup workerBackup = new WorkerBackup(memory, configuration, gson);
+        WorkerBackup workerBackup = new WorkerBackup(memory, configuration, gson, rankingGenerator);
         Thread threadBackup = new Thread(workerBackup);
         WorkerWord workerWord = new WorkerWord(memory, configuration, gson);
         Thread threadWord = new Thread(workerWord);
@@ -199,7 +255,7 @@ public class ServerMain {
                         } catch (BufferUnderflowException e) {
                            continue;
                         }
-                        //  Se ricevo una stringa vuota significa che il client si è disconnesso
+                        //  ricevo una stringa vuota significa che il client si è disconnesso
                         if (stringa.equals("")) {
                             if (memory.isOnline(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername()) ){
                                 memory.logout(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername());
@@ -208,7 +264,9 @@ public class ServerMain {
                             System.err.println("Connessione chiusa");
                         } else {
                             System.out.println("Messaggio ricevuto: " + stringa);
-                            threadPoolExecutor.execute(new Worker(stringa, memory, client, gson, configuration, rankingGenerator, rankingServer));
+                            synchronized (memory){
+                                threadPoolExecutor.execute(new Worker(stringa, memory, client, gson, configuration, rankingGenerator, rankingServer));
+                            }
                         }
                     }
                 } catch (IOException e) {

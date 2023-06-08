@@ -1,18 +1,27 @@
 package server;
 
 public class Configuration {
-    private final long timeoutWord;
+    private final long timeExchange;
+    private final long timeBackup;
     private final int defaultPort;
     private final int RegistryPort;
+    private final int UDP_PORT;
+    private final String multicastAddress;
 
     public Configuration() {
-        this.timeoutWord = 5;       // minuti
+        this.timeExchange = 5;       // minuti
+        this.timeBackup = 5;     // secondi
         this.defaultPort = 5000;
         this.RegistryPort = 1717;
+        this.UDP_PORT = 5001;
+        this.multicastAddress = "226.226.226.226";
     }
 
-    public long getTimeoutWord() {
-        return timeoutWord;
+    public long getTimeExchange() {
+        return timeExchange;
+    }
+    public long getTimeBackup() {
+        return timeBackup;
     }
 
     public int getDefaultPort() {
@@ -23,12 +32,12 @@ public class Configuration {
         return RegistryPort;
     }
 
-    public String toString() {
-        return "server.Configuration{" +
-                "timeoutWord=" + timeoutWord +
-                ", defaultPort=" + defaultPort +
-                ", RegistryPort=" + RegistryPort +
-                '}';
+    public int getUDP_PORT() {
+        return UDP_PORT;
+    }
+
+    public String getMulticastAddress() {
+        return multicastAddress;
     }
 
     //  metodo per settare il file separator

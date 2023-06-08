@@ -1,26 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="Client" />
+      <artifact name="Server" />
+    </artifacts-to-build>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="945c051a-8476-4f2c-8b5c-edeffdc20f02" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Client.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Server.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shared/client-manifest/META-INF/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shared/server-manifest/META-INF/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shared/server-manifest/META-INF/manifest.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/ClientMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ClientMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/RankingImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ranking/RankingImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/Configuration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/NotifyHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/NotifyHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/ranking/RankingImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ranking/RankingImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/RankingServerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/rmi/RankingServerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/Memory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/Memory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ServerMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/Worker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/WorkerBackup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerBackup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/WorkerWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerWord.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/backup.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/backup.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/entities/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/Worker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/entities/WorkerBackup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerBackup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/entities/WorkerWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerWord.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/rmi/RankingServerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/rmi/RankingServerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/user/PlayersRaking.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/user/RankingGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/user/RankingGenerator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/user/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/user/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/RankingInterfaceUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingInterfaceUpdate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/RankingServerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingServerInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/CodeError.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/CodeError.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/ranking/RankingInterfaceUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingInterfaceUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/ranking/RankingServerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingServerInterface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,34 +65,40 @@
     <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2IW0yyDFUYtAtw7Sqct1IYEVfDk" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.JavaDocs&quot;: &quot;true&quot;,
-    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;java.suggest.annotation.dependency&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Federico Landini/Documents/GitHub/WORDLE/src/libs/gson-2.8.2.jar&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15527344&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Downloaded.Files.Path.Enabled": "false",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "true",
+    "Repository.Attach.Sources": "false",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "java.suggest.annotation.dependency": "false",
+    "last_opened_file_path": "C:/Users/Federico Landini/Documents/GitHub/WORDLE/src/shared/client-manifest/META-INF",
+    "project.structure.last.edited": "Artifacts",
+    "project.structure.proportion": "0.15527344",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "project.propCompiler"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="server.user" />
       <recent name="" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Federico Landini\Documents\GitHub\WORDLE\src\shared\client-manifest\META-INF" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Federico Landini\Documents\GitHub\WORDLE\src\server" />

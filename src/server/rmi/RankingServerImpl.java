@@ -7,7 +7,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class RankingServerImpl extends RemoteObject implements RankingServerInterface {
     private List<RankingInterfaceUpdate> clients;
@@ -40,9 +39,9 @@ public class RankingServerImpl extends RemoteObject implements RankingServerInte
         }
     }
 
-    public synchronized void updateRanking(Vector<String> list) throws RemoteException {
+    public synchronized void updateRanking(String notify) throws RemoteException {
         for (RankingInterfaceUpdate client : clients) {
-            client.updateRanking(list);
+            client.updateRanking(notify);
         }
     }
 }

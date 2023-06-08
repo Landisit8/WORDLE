@@ -16,6 +16,7 @@ import java.net.*;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Worker implements Runnable{
     private String mStringa;
@@ -23,13 +24,21 @@ public class Worker implements Runnable{
     private SocketChannel client;
     private Gson gson;
     private Configuration configuration;
-    private RankingGenerator rankingGenerator;
-    private RankingServerImpl rankingServer;
+
+    //  Variabili per il gioco
     private static int attempts = 0;   //  Tentativi effettuati
     private static final int MAX_ATTEMPTS = 3;   //  Numero massimo di tentativi
     private ArrayList<String> dictionary;
 
-    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson, Configuration configuration, RankingGenerator rankingGenerator, RankingServerImpl rankingServer){
+    //  Variabili per la gestione della classifica
+    private Vector<String> ranking;
+    private RankingGenerator rankingGenerator;
+    private Vector<String> oldRanking;
+    private RankingServerImpl rankingServer;
+
+
+    public Worker(String stringa, Memory memory, SocketChannel client, Gson gson, Configuration configuration,
+                  RankingGenerator rankingGenerator, RankingServerImpl rankingServer){
         this.mStringa = stringa;
         this.memory = memory;
         this.client = client;
@@ -37,6 +46,7 @@ public class Worker implements Runnable{
         this.configuration = configuration;
         this.rankingGenerator = rankingGenerator;
         this.rankingServer = rankingServer;
+        this.oldRanking = new Vector<>();
         }
 
     @Override
@@ -52,7 +62,8 @@ public class Worker implements Runnable{
                 memory.getUsers().get(memory.getUserSocketChannel().get(client)).setFlag(true);
                 break;
             case "sendWord":
-                if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord().equals(WorkerWord.wordGuess)) {
+                if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord().equals(WorkerWord.wordGuess)
+                && memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord().equals("loser")){
                     try {
                         Utils.write("Codice 031, Hai già giocato questa parola", client);
                     } catch (IOException e) {
@@ -76,9 +87,11 @@ public class Worker implements Runnable{
                 case "share":
                     //  share
                     try(DatagramSocket socket = new DatagramSocket()){
-                        InetAddress group = InetAddress.getByName("226.226.226.226");
+                        InetAddress group = InetAddress.getByName(configuration.getMulticastAddress());
 
                         String message = null;
+                        String numberWordGuess = String.valueOf(WorkerWord.numberWordGuess);
+                        String vectorAttempts = "";
                         switch (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord()){
                             case "default":
                                 try {
@@ -88,7 +101,12 @@ public class Worker implements Runnable{
                                 }
                                 break;
                             case "loser":
-                                message = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername() + " ha perso";
+                                for(String word : memory.getUsers().get(memory.getUserSocketChannel().get(client)).getGameCurrent())
+                                    vectorAttempts += word + " ";
+
+                                message = numberWordGuess + " partita, "
+                                        + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername()
+                                        + ": " + vectorAttempts;
                                 try {
                                     Utils.write("Codice 060, Condiviso con successo", client);
                                 } catch (IOException e) {
@@ -96,7 +114,17 @@ public class Worker implements Runnable{
                                 }
                                 break;
                             default:
-                                message = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername() + " ha vinto";
+                                for(String word : memory.getUsers().get(memory.getUserSocketChannel().get(client)).getGameCurrent())
+                                    vectorAttempts += word + " ";
+
+                                message = numberWordGuess + " partita, "
+                                        + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername()
+                                        + ": " + vectorAttempts;
+                                try {
+                                    Utils.write("Codice 060, Condiviso con successo", client);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                                 try {
                                     Utils.write("Codice 060, Condiviso con successo", client);
                                 } catch (IOException e) {
@@ -114,12 +142,21 @@ public class Worker implements Runnable{
                         String lengthMessage = String.valueOf(message.length());
                         byte[] size = lengthMessage.getBytes();
 
-                        DatagramPacket sizePacket = new DatagramPacket(size, size.length, group, 5001);
+                        DatagramPacket sizePacket = new DatagramPacket(size, size.length, group, configuration.getUDP_PORT());
                         socket.send(sizePacket);
 
-                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, 5001);
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, configuration.getUDP_PORT());
                         socket.send(packet);
 
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "showMeRanking":
+                    //  showMeRanking
+                    try {
+                        ranking = rankingGenerator.generateRanking();
+                        Utils.write(gson.toJson(ranking), client);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -133,7 +170,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che gestisce il login
-    private void handleLogin(String username, String password){
+    private synchronized void handleLogin(String username, String password){
         //  fare uno switch case
         switch (memory.login(username, password)){
             case 0:
@@ -176,7 +213,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che gestisce il playWordle
-    public void playWordle(){
+    public synchronized void playWordle(){
         String word = WorkerWord.wordGuess;
         String lastWordGuessed = memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord();
 
@@ -196,6 +233,7 @@ public class Worker implements Runnable{
             } else {
                 try {
                     Utils.write("Codice 030, INIZIO PARTITA", client);
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).resetAttempts();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -204,7 +242,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che controlla la parola inserita dall'utente
-    public void handleSendWord(String word){
+    public synchronized void handleSendWord(String word){
         //  caso che l'utente ha finito i tentativi
         if (attempts >= MAX_ATTEMPTS) {
             try {
@@ -212,8 +250,6 @@ public class Worker implements Runnable{
 
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord("loser");
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
-
-                    //  setto la striscia di vittorie
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).setStreakWin(0);
 
                     //  Calcolo della media dei tentativi, tentativi rimasti + tentativi effettuati / numero di partite
@@ -228,12 +264,18 @@ public class Worker implements Runnable{
                                     * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
 
                     //  gestione della classifica
-                    rankingGenerator = new RankingGenerator(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername(),
-                            memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified());
-                    rankingServer.updateRanking(rankingGenerator.generateRanking());
+                    rankingGenerator.updateRanking(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername()
+                    , memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified());
+                    ranking = rankingGenerator.generateRanking();
+                    if (rankingGenerator.checkTopThree(oldRanking,ranking)){
+                        rankingServer.updateRanking("Codice 105, Le prime 3 posizioni della classifica sono state modificate");
+                    }
+                    oldRanking = ranking;
 
                     //  traduzione della parola
                     String traslation = getItalianTranslation(WorkerWord.wordGuess);
+
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setGuessDistribution(attempts);
 
                     attempts = 0;
                     Utils.write("Codice 041, Hai superato i tentativi massimi" + " La parola tradotta è: " + traslation, client);
@@ -260,10 +302,7 @@ public class Worker implements Runnable{
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).setLastWord(word);
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumWin();
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementNumGame();
-
-                    //  setto la striscia di vittorie
-                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setStreakWin(memory.getUsers()
-                            .get(memory.getUserSocketChannel().get(client)).getStreakWin() + 1);
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).incrementStreakWin();
 
                     //  Calcolo la massima striscia di vittorie
                     memory.getUsers().get(memory.getUserSocketChannel().get(client)).setMaxStreakWin(memory.getUsers()
@@ -281,12 +320,18 @@ public class Worker implements Runnable{
                                     * memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt());
 
                     //  gestione della classifica
-                    rankingGenerator = new RankingGenerator(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername(),
-                            memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified());
-                    rankingServer.updateRanking(rankingGenerator.generateRanking());
+                    rankingGenerator.updateRanking(memory.getUsers().get(memory.getUserSocketChannel().get(client)).getUsername()
+                            , memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified());
+                    ranking = rankingGenerator.generateRanking();
+
 
                     //  traduzione della parola
                     String traslation = getItalianTranslation(word);
+
+                    //  aggiungo nella lista current word la stringa ceh ha indovinato
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).addAttempts("++++++++++");
+
+                    memory.getUsers().get(memory.getUserSocketChannel().get(client)).setGuessDistribution(attempts+1);
 
                     attempts = 0;
                     Utils.write("Codice 040, Congratulazioni! Hai indovinato la parola! " + " La parola tradotta è: " + traslation, client);
@@ -300,6 +345,7 @@ public class Worker implements Runnable{
             if(binarySearchDictionary(word)){
                 attempts++;
                 StringBuilder response = getWordController(word);
+                memory.getUsers().get(memory.getUserSocketChannel().get(client)).addAttempts(response.toString());
                 try {
                     Utils.write("Codice 042, Parola non indovinata, " + response + ". Tentativi rimasti: " + (MAX_ATTEMPTS - attempts), client);
                 } catch (IOException e) {
@@ -316,7 +362,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che costruisce la stringa di risposta
-    public StringBuilder getWordController(String word){
+    public synchronized StringBuilder getWordController(String word){
         StringBuilder response = new StringBuilder();
         char[] secretChar = WorkerWord.wordGuess.toCharArray();
         char[] guessChar = word.toLowerCase().toCharArray();
@@ -338,14 +384,14 @@ public class Worker implements Runnable{
     }
 
     //  controllo se il dizionario è stato inizializzato
-    private boolean binarySearchDictionary(String word){
+    private synchronized boolean binarySearchDictionary(String word){
         if (dictionary == null)
             initializeDictionary(word);
         return binarySearch(dictionary, word);
     }
 
     //  Metodo per inizializzare il dizionario
-    private void initializeDictionary(String word) {
+    private synchronized void initializeDictionary(String word) {
         dictionary = new ArrayList<>();
         try {
             //  gestire questo dettaglio
@@ -366,7 +412,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che esegue la ricerca binaria
-    private boolean binarySearch(ArrayList<String> dictionary, String word) {
+    private synchronized boolean binarySearch(ArrayList<String> dictionary, String word) {
         int left = 0;
         int right = dictionary.size() - 1;
 
@@ -386,11 +432,12 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che gestisce le statistiche
-    private void handleStats() {
+    private synchronized void handleStats() {
         try {
-            Utils.write("Codice 050, Numero partite: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
+            Utils.write("Codice 050 STATISTICHE"
+                    + "; Numero partite: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumGame()
                     + "; Numero vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getNumWin()
-                    + "; Media tentativi: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getAvgAttempt()
+                    + "; tentativi effettuati: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getGuessDistribution()
                     + "; Striscia vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getStreakWin()
                     + "; Massimo striscia vittorie: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getMaxStreakWin()
                     + "; Punteggio: " + memory.getUsers().get(memory.getUserSocketChannel().get(client)).getValueClassified(), client);
@@ -400,7 +447,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che gestisce il logout
-    private void handleLogout(String username) {
+    private synchronized void handleLogout(String username) {
             switch (memory.logout(username)){
                 case 0:
                     System.out.println("Codice 020, Logout effettuato con successo");
@@ -430,7 +477,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che gestisce la traduzione della parola
-    private String getItalianTranslation(String word) throws IOException{
+    private synchronized String getItalianTranslation(String word) throws IOException{
         String url = "https://api.mymemory.translated.net/get";
         String lang = "en|it";
         String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
@@ -460,7 +507,7 @@ public class Worker implements Runnable{
     }
 
     //  Metodo che estrae la traduzione dalla risposta JSON
-    private String extractTranslation(String response) {
+    private synchronized String extractTranslation(String response) {
         JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
         return jsonObject.getAsJsonObject("responseData").get("translatedText").getAsString();
     }

@@ -1,30 +1,39 @@
 package server.user;
 
+import java.util.Vector;
+
 public class User {
     private final String username;
     private final Password password;
 
-    //Variabile per le statistiche dividere le statistiche da stampare e no
-    private String lastWord;
-    private int numWin;
+    //  Variabile per le statistiche
+    //  visibili per l'utente
     private int numGame;
-    private float avgAttempt;
+    private int numWin;
     private int streakWin;
     private int maxStreakWin;
+    private int guessDistribution;
     private float valueClassified;
+
+    //  non visibili per l'utente
+    private String lastWord;
+    private float avgAttempt;
     private boolean flag;
+    private Vector<String> gameCurrent;
 
     public User(String username, String password) {
         this.username = username;
         this.password = new Password(password);
-        this.lastWord = "default";
         this.numWin = 0;
         this.numGame = 0;
-        this.avgAttempt = 0;
         this.streakWin = 0;
         this.maxStreakWin = 0;
+        this.guessDistribution = 0;
         this.valueClassified = 0;
+        this.lastWord = "default";
+        this.avgAttempt = 0;
         this.flag = false;
+        this.gameCurrent = new Vector<>();
     }
 
     // METODI GETTER
@@ -48,6 +57,10 @@ public class User {
         return numGame;
     }
 
+    public int getGuessDistribution() {
+        return guessDistribution;
+    }
+
     public float getAvgAttempt() {
         return avgAttempt;
     }
@@ -66,6 +79,10 @@ public class User {
 
     public boolean getFlag() {
         return flag;
+    }
+
+    public Vector<String> getGameCurrent() {
+        return gameCurrent;
     }
 
     // METODI SETTER
@@ -96,6 +113,10 @@ public class User {
         }
     }
 
+    public void setGuessDistribution(int guessDistribution) {
+        this.guessDistribution = guessDistribution;
+    }
+
     // METODI COUNTERS
     public void incrementNumWin() {
         this.numWin++;
@@ -105,4 +126,20 @@ public class User {
         this.numGame++;
     }
 
+    public void incrementStreakWin() {
+        this.streakWin++;
+    }
+
+    // METODI PER IL GIOCO
+
+    //  aggiungo la parola alla lista dei tentativi dell'utente
+    public void addAttempts(String word) {
+
+        gameCurrent.add(word);
+    }
+
+    //  resetto il vector dalla lista dei tentativi dell'utente
+    public void resetAttempts() {
+        gameCurrent.clear();
+    }
 }

@@ -1,5 +1,8 @@
 {
-  "timeoutWord": 5,
+  "timeExchange": 5,
+  "timeBackup": 5,
   "defaultPort": 5000,
-  "RegistryPort": 1717
+  "RegistryPort": 1717,
+  "UDP_PORT": 5001,
+  "multicastAddress": "226.226.226.226"
 }

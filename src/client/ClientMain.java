@@ -3,14 +3,16 @@ package client;
 import client.ranking.RankingImpl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import shared.Utils;
 import shared.ranking.RankingInterfaceUpdate;
 import shared.ranking.RankingServerInterface;
-import shared.Utils;
 import shared.rmi.RegisterInterface;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -26,6 +28,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientMain {
     public static void main(String[] args) {
+        //  variabili thread
+        NotifyHandler notifyHandler;
+        Thread thread = null;
+
+        //  RMI Client
+        RegisterInterface serverObject;
+        Remote remoteObject;
+        //  RMICALLBACK
+        RankingInterfaceUpdate rankingInterfaceUpdate = null;
+        RankingInterfaceUpdate stub = null;
+        RankingServerInterface rankingServerInterface = null;
+
+        // variabili per lo share
+        Vector<String> games = new Vector<>();
+
+        //  variabili per i menu
+        boolean exit = false;
+        boolean login = false;
+        boolean logout = false;
+        Scanner scanner = new Scanner(System.in);
+        int menu;
+        String stringa;
+
         //  variabili configurazione
         Configuration configuration = new Configuration();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -53,41 +78,20 @@ public class ClientMain {
         SocketChannel client = null;
         SocketAddress address = new InetSocketAddress(configuration.getHostname(), configuration.getDefaultPort());
 
-        //  variabili thread
-        NotifyHandler notifyHandler;
-        Thread thread = null;
-
-        //  RMI Client
-        RegisterInterface serverObject;
-        Remote remoteObject;
-        //  RMICALLBACK
-        RankingInterfaceUpdate rankingInterfaceUpdate = null;
-        RankingInterfaceUpdate stub = null;
-        RankingServerInterface rankingServerInterface = null;
-
-        // variabili per lo share
-        Vector<String> games = new Vector<>();
-
         //  variabili utili
         Vector<String> winners = new Vector<>();
+        Vector<String> previousWinners = new Vector<>();
         AtomicBoolean print = new AtomicBoolean(true);
-        Registry r;
+        Registry registry;
         try {
-            r = LocateRegistry.getRegistry(configuration.getRegistryPort());
+            registry = LocateRegistry.getRegistry(configuration.getRegistryPort());
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
 
-        //  variabili per i menu
-        boolean exit = false;
-        boolean login = false;
-        boolean logout = false;
-        int menu;
-        Scanner scanner = new Scanner(System.in);
-        String stringa;
-
         try {
             client = SocketChannel.open(address);
+
         //  menu
             do{
                 do {
@@ -116,7 +120,7 @@ public class ClientMain {
                             System.out.println("Inserisci password");
                             String password = scanner.next();
                             try {
-                                remoteObject = r.lookup("REGISTER-SERVICE");
+                                remoteObject = registry.lookup("REGISTER-SERVICE");
                                 serverObject = (RegisterInterface) remoteObject;
                                 switch (serverObject.register(username, password)){
                                     case 0:
@@ -152,10 +156,10 @@ public class ClientMain {
                                     System.out.println(stringa);
                                 } else {
                                     System.out.println(stringa + " Benvenuto");
-                                    notifyHandler = new NotifyHandler(5001, "226.226.226.226",games,print);
+                                    notifyHandler = new NotifyHandler(configuration.getUDP_PORT(),configuration.getMulticastAddress() ,games,print);
                                     thread = new Thread(notifyHandler);
                                     thread.start();
-                                    rankingServerInterface = (RankingServerInterface) r.lookup("RANKING-SERVICE");
+                                    rankingServerInterface = (RankingServerInterface) registry.lookup("RANKING-SERVICE");
                                     rankingInterfaceUpdate = new RankingImpl(winners);
                                     stub = (RankingInterfaceUpdate) UnicastRemoteObject.exportObject(rankingInterfaceUpdate, 0);
                                     if (rankingServerInterface != null) {
@@ -186,8 +190,9 @@ public class ClientMain {
                             System.out.println("1. Send Word");
                             System.out.println("2. send me statistics");
                             System.out.println("3. Share");
-                            System.out.println("4. show");
-                            System.out.println("5: Logout");
+                            System.out.println("4. showMeSharing");
+                            System.out.println("5. showMeRanking");
+                            System.out.println("6: Logout");
 
                             print.set(false);
                             //  controllo che l'ingresso sia un intero
@@ -249,19 +254,51 @@ public class ClientMain {
                                 break;
                             case 4:
                                 //  showMeSharing
-                                if (games.isEmpty()){
-                                    System.out.println("Codice 071, Nessun giocatore ha condiviso la partita");
-                                } else {
-                                    System.out.println("Codice 070, Giocatori che hanno condiviso la partita:");
-                                    for (String game : games)   System.out.println(game);
-                                }
-
-                                winners = rankingInterfaceUpdate.getWinners();
-                                for (int i=0; i < winners.size(); i++) {
-                                    System.out.println(i + 1 + "° classificato: " + winners.get(i));
-                                }
+                                    if (games.isEmpty()){
+                                        System.out.println("Codice 071, Nessun giocatore ha condiviso la partita");
+                                    } else {
+                                        System.out.println("Codice 070, Giocatori che hanno condiviso la partita:");
+                                        for (String game : games)   System.out.println(game);
+                                    }
                                 break;
                             case 5:
+                                //  showMeRanking
+                                try {
+                                    Utils.write("showMeRanking", client);
+                                    //  lettura
+                                    stringa = Utils.read(client);
+                                    //  ascolto la notifica
+                                    synchronized (winners) {
+                                        winners = rankingInterfaceUpdate.getNotify();
+                                    }
+                                    if (!previousWinners.equals(winners)){
+                                        for(int i = 0; i < winners.size(); i++){
+                                            System.out.println(i+1 + ") " + winners.get(i));
+                                        }
+                                    }
+                                    previousWinners = winners;
+
+                                    // deserializzo la stringa
+                                    Type type = new TypeToken<Vector<String>>(){}.getType();
+                                    Vector<String> ranking = null;
+                                    synchronized (ranking) {
+                                        ranking = gson.fromJson(stringa, type);
+                                    }
+                                    if (ranking == null){
+                                        System.out.println("Codice 061, non è stata giocata nessuna partita");
+                                        break;
+                                    } else {
+                                        //  stampo la classifica
+                                        System.out.println("Classifica:");
+                                        for (int i = 0; i < ranking.size(); i++)
+                                            System.out.println(i + 1 + "° classificato: " + ranking.get(i));
+
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case 6:
                                 //  logout
                                 try {
                                     //  scrittura
@@ -286,7 +323,7 @@ public class ClientMain {
                                 break;
                             case 601487:
                                 //  easter egg
-                                System.out.println("Easter egg attivato");
+                                System.out.println("Codice 104, Easter egg attivato");
                                 System.out.printf("Questo è il progetto di reti di %-5s %-5s%n", "Federico", "Landini");
                                 break;
                             default:

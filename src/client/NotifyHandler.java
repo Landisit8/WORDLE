@@ -50,12 +50,17 @@ public class NotifyHandler implements Runnable{
                     while(!print.get()) {}
                     System.out.println(message);
                 } else {
-                    games.add(message);
+                    synchronized (games){
+                        games.add(message);
+                    }
                 }
 
-                if (games.size() >= 100) {
-                    games.remove(0);
+                synchronized (games){
+                    if (games.size() >= 100) {
+                        games.remove(0);
+                    }
                 }
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

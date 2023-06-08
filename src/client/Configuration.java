@@ -4,11 +4,15 @@ public class Configuration {
     private final int defaultPort;
     private final int registryPort;
     private final String hostname;
+    private final int UDP_PORT;
+    private final String multicastAddress;
 
     public Configuration() {
         this.defaultPort = 5000;
         this.registryPort = 1717;
         this.hostname = "localhost";
+        this.UDP_PORT = 5001;
+        this.multicastAddress = "226.226.226.226";
     }
 
     public int getDefaultPort() {
@@ -19,6 +23,12 @@ public class Configuration {
     }
     public String getHostname() {
         return hostname;
+    }
+    public int getUDP_PORT() {
+        return UDP_PORT;
+    }
+    public String getMulticastAddress() {
+        return multicastAddress;
     }
 
     //  metodo per settare il file separator

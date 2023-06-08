@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import java.util.Vector;
 
 public interface RankingInterfaceUpdate extends Remote {
-    void updateRanking(Vector<String> list) throws RemoteException;
+    void updateRanking(String notify) throws RemoteException;
 
-    Vector<String> getWinners() throws RemoteException;
+    Vector<String> getNotify() throws RemoteException;
 }
