@@ -10,34 +10,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="945c051a-8476-4f2c-8b5c-edeffdc20f02" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Client.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Server.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shared/client-manifest/META-INF/MANIFEST.MF" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shared/server-manifest/META-INF/MANIFEST.MF" afterDir="false" />
+    <list default="true" id="945c051a-8476-4f2c-8b5c-edeffdc20f02" name="Changes" comment="Modifiche">
       <change afterPath="$PROJECT_DIR$/src/shared/server-manifest/META-INF/manifest.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/ClientMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ClientMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/NotifyHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/NotifyHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/ranking/RankingImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ranking/RankingImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/Memory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/Memory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ServerMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/backup.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/entities/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/Worker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/entities/WorkerBackup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerBackup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/entities/WorkerWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/entities/WorkerWord.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/rmi/RankingServerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/rmi/RankingServerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/user/PlayersRaking.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/user/RankingGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/user/RankingGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/user/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/user/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/CodeError.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/CodeError.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/ranking/RankingInterfaceUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingInterfaceUpdate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/ranking/RankingServerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ranking/RankingServerInterface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +114,19 @@
       <option name="presentableId" value="Default" />
       <updated>1670282289849</updated>
     </task>
+    <task id="LOCAL-00001" summary="Modifiche">
+      <created>1686241869586</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1686241869586</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Modifiche" />
+    <option name="LAST_COMMIT_MESSAGE" value="Modifiche" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
