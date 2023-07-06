@@ -63,7 +63,7 @@ public class Worker implements Runnable{
                 break;
             case "sendWord":
                 if (memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord().equals(WorkerWord.wordGuess)
-                || memory.getUsers().get(memory.getUserSocketChannel().get(client)).getLastWord().equals("loser")){
+                ||).get(memory.getUserSocketChannel().get(client)).getLastWord().equals("loser")){
                     try {
                         Utils.write("Codice 031, Hai già giocato questa parola", client);
                     } catch (IOException e) {

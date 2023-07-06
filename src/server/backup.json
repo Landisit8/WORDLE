@@ -1,0 +1,20 @@
+{
+  "fede": {
+    "username": "fede",
+    "password": {
+      "password": ";;"
+    },
+    "numGame": 3,
+    "numWin": 3,
+    "streakWin": 3,
+    "maxStreakWin": 3,
+    "guessDistribution": 1,
+    "valueClassified": 2.0,
+    "lastWord": "spreadover",
+    "avgAttempt": 0.6666667,
+    "flag": true,
+    "gameCurrent": [
+      "++++++++++"
+    ]
+  }
+}
